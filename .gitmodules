@@ -1,0 +1,3 @@
+[submodule "proto/common"]
+	path = proto/common
+	url = https://WeConnectTechnology@dev.azure.com/WeConnectTechnology/ExchangeHub/_git/proto
