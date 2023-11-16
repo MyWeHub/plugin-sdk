@@ -2,10 +2,10 @@ package main2
 
 import (
 	"context"
+	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
+	testingLib "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/testing"
 	"testing"
-	pb "wehublib/gen/pluginrunner"
-	"wehublib/telemetry"
-	testingLib "wehublib/testing"
 )
 
 var client pb.PluginRunnerServiceClient

@@ -2,15 +2,15 @@ package testing
 
 import (
 	"context"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git"
+	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
 	"net"
-	"wehublib"
-	pb "wehublib/gen/pluginrunner"
-	"wehublib/telemetry"
 )
 
 var (

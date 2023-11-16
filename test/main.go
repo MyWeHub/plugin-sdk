@@ -2,15 +2,15 @@ package main2
 
 import (
 	"context"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git"
+	cs "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/connectionService"
+	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
+	testingLib "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/testing"
 	"fmt"
 	"go.uber.org/zap"
 	"log"
-	"wehublib"
-	cs "wehublib/connectionService"
-	pb "wehublib/gen/pluginrunner"
-	"wehublib/nats"
-	"wehublib/telemetry"
-	testingLib "wehublib/testing"
 )
 
 type serviceServer struct {

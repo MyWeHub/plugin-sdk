@@ -2,6 +2,7 @@ package telemetry
 
 import (
 	"context"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -10,7 +11,6 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
-	"wehublib/util"
 )
 
 type Telemetry struct {

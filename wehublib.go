@@ -2,6 +2,9 @@ package wehublib
 
 import (
 	"context"
+	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"errors"
 	"fmt"
 	"github.com/amsokol/mongo-go-driver-protobuf/pmongo"
@@ -24,9 +27,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	pb "wehublib/gen/pluginrunner"
-	"wehublib/telemetry"
-	"wehublib/util"
 )
 
 // TODO: maybe add options to control which interceptor to add or not

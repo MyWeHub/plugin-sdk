@@ -2,6 +2,8 @@ package connectionService
 
 import (
 	"context"
+	pbsc "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/serviceConnection"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
 	"errors"
 	"fmt"
 	grpcOtel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -9,8 +11,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	pbsc "wehublib/gen/serviceConnection"
-	"wehublib/telemetry"
 )
 
 var (

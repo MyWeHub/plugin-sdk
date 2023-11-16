@@ -2,6 +2,8 @@ package nats
 
 import (
 	"context"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"encoding/json"
 	"fmt"
 	"github.com/nats-io/nats.go"
@@ -12,8 +14,6 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"time"
-	"wehublib/telemetry"
-	"wehublib/util"
 )
 
 var (

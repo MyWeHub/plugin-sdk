@@ -7,6 +7,7 @@
 package pluginrunner
 
 import (
+	schema "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/schema"
 	_ "github.com/amsokol/protoc-gen-gotag/tagger"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -14,7 +15,6 @@ import (
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
-	schema "wehublib/gen/schema"
 )
 
 const (
