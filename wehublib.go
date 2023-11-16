@@ -32,6 +32,8 @@ import (
 // TODO: maybe add options to control which interceptor to add or not
 // TODO: submodule?
 // TODO: write unit tests!
+// TODO: add README.md and documentation for godoc
+// TODO: grpc status pkg!
 // TODO:
 
 type server struct {
@@ -81,7 +83,7 @@ func (s *server) SetCustomRecoveryHandler(handler func(interface{}) error) {
 	s.recoveryFunc = handler
 }
 
-func (s *server) SetNewGRPC() {
+func (s *server) SetNewGRPC() *server {
 	if s.logger == nil {
 		panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
 	}
@@ -110,6 +112,7 @@ func (s *server) SetNewGRPC() {
 			grpcRecovery.UnaryServerInterceptor(recoveryOpts...)))
 
 	s.server = grpc.NewServer(streamInterceptor, unaryInterceptor)
+	return s
 }
 
 func (s *server) Serve(opts ...*ServerOptions) {

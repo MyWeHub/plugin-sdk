@@ -1,4 +1,4 @@
-package main
+package main2
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func init() {
 }
 
 func TestTest(t *testing.T) {
-	ctx := testingLib.AppendTestToken(context.Background())
+	ctx := testingLib.AppendInterceptorTestToken(context.Background())
 
 	_, err := client.RunTest(ctx, &pb.InputTestRequest{})
 	if err != nil {

@@ -1,11 +1,16 @@
-package main
+package main2
 
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
+	"log"
+	"wehublib"
+	cs "wehublib/connectionService"
 	pb "wehublib/gen/pluginrunner"
 	"wehublib/nats"
 	"wehublib/telemetry"
+	testingLib "wehublib/testing"
 )
 
 type serviceServer struct {
@@ -13,9 +18,10 @@ type serviceServer struct {
 }
 
 func (c *serviceServer) RunTest(ctx context.Context, input *pb.InputTestRequest) (*pb.InputTestResponse, error) {
-	fmt.Println("------------------------SHIT!")
 	return &pb.InputTestResponse{}, nil
 }
+
+var logger *zap.Logger
 
 func main() {
 	ctx := context.Background()
@@ -26,10 +32,13 @@ func main() {
 	defer t.SyncLogger()
 
 	// server
-	/*server := wehublib.NewServer(t)
-	server.SetNewGRPC()
-	server.SetServiceServer(&serviceServer{})
-	server.Serve(&wehublib.ServerOptions{DisableHTTP: false, GracefulShutdown: true})*/
+	server := wehublib.NewServer(t)
+	server.SetNewGRPC().SetServiceServer(&serviceServer{})
+	server.SetCustomGRPCPort("6666")
+	server.SetCustomHTTPPort("6666")
+	//server.SetCustomJwtHandler()
+	//server.SetCustomRecoveryHandler()
+	server.Serve(&wehublib.ServerOptions{DisableHTTP: false, GracefulShutdown: true})
 
 	// nats
 	n := nats.NewNats(t)
@@ -39,11 +48,11 @@ func main() {
 		fmt.Println(node.NodeType)
 		fmt.Println(node.ID)
 		fmt.Println(node.WorkflowID)
-		//fmt.Println(node.DecodeConfig(nil))
+		fmt.Println(node.DecodeConfig(nil))
 	}
 
 	// connection service
-	/*ncs, err := cs.NewConnectionService(ctx, t, &cs.Options{ExternalRequest: true})
+	ncs, err := cs.NewConnectionService(ctx, t, &cs.Options{ExternalRequest: true})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,5 +68,5 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("mongoConnection")
-	fmt.Println(mongoConnection)*/
+	fmt.Println(mongoConnection)
 }

@@ -1,0 +1,1 @@
+git submodule add https://WeConnectTechnology@dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib wehublib/
