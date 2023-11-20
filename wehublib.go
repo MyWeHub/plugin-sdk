@@ -50,6 +50,17 @@ type ServerOptions struct {
 	GracefulShutdown bool
 }
 
+type GRPCOptions struct {
+	TagsInterceptor       bool
+	OtelInterceptor       bool
+	PrometheusInterceptor bool
+	ZapLoggerInterceptor  bool
+	AuthInterceptor       bool
+	RecoveryInterceptor   bool
+	MaxReceiveSize        int
+	MaxSendSize           int
+}
+
 func NewServer(t *telemetry.Telemetry) *server {
 	return &server{
 		logger:       t.GetLogger(),
@@ -112,6 +123,74 @@ func (s *server) SetNewGRPC() *server {
 			grpcRecovery.UnaryServerInterceptor(recoveryOpts...)))
 
 	s.server = grpc.NewServer(streamInterceptor, unaryInterceptor)
+	return s
+}
+
+func (s *server) SetNewCustomGRPC(opts ...*GRPCOptions) *server {
+	if len(opts) == 0 || opts == nil {
+		return s.SetNewGRPC()
+	}
+
+	stream := make([]grpc.StreamServerInterceptor, 0)
+	unary := make([]grpc.UnaryServerInterceptor, 0)
+
+	x := opts[0]
+
+	if x.TagsInterceptor {
+		unary = append(unary, grpcTags.UnaryServerInterceptor())
+		stream = append(stream, grpcTags.StreamServerInterceptor())
+	}
+	if x.OtelInterceptor {
+		unary = append(unary, grpcOtel.UnaryServerInterceptor())
+		stream = append(stream, grpcOtel.StreamServerInterceptor())
+	}
+	if x.PrometheusInterceptor {
+		unary = append(unary, grpcPrometheus.UnaryServerInterceptor)
+		stream = append(stream, grpcPrometheus.StreamServerInterceptor)
+	}
+	if x.ZapLoggerInterceptor {
+		if s.logger == nil {
+			panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
+		}
+
+		unary = append(unary, grpcZap.UnaryServerInterceptor(s.logger))
+		stream = append(stream, grpcZap.StreamServerInterceptor(s.logger))
+	}
+	if x.AuthInterceptor {
+		unary = append(unary, grpcAuth.UnaryServerInterceptor(s.jwtAuthFunc))
+		stream = append(stream, grpcAuth.StreamServerInterceptor(s.jwtAuthFunc))
+	}
+	if x.RecoveryInterceptor {
+		recoveryOpts := []grpcRecovery.Option{
+			grpcRecovery.WithRecoveryHandler(s.recoveryFunc),
+		}
+
+		unary = append(unary, grpcRecovery.UnaryServerInterceptor(recoveryOpts...))
+		stream = append(stream, grpcRecovery.StreamServerInterceptor(recoveryOpts...))
+	}
+
+	fmt.Println("------------")
+	fmt.Println(len(unary))
+	fmt.Println(len(stream))
+	fmt.Println("------------")
+
+	serverOpts := make([]grpc.ServerOption, 0)
+	serverOpts = append(serverOpts, grpc.StreamInterceptor(grpcMiddleware.ChainStreamServer(stream...)))
+	serverOpts = append(serverOpts, grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(unary...)))
+
+	if x.MaxSendSize > 0 {
+		serverOpts = append(serverOpts, grpc.MaxSendMsgSize(x.MaxSendSize))
+	}
+	if x.MaxReceiveSize > 0 {
+		serverOpts = append(serverOpts, grpc.MaxRecvMsgSize(x.MaxReceiveSize))
+	}
+
+	fmt.Println("------------")
+	fmt.Println(len(serverOpts))
+	fmt.Println("------------")
+
+	s.server = grpc.NewServer(serverOpts...)
+
 	return s
 }
 
