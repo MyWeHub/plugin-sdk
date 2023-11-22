@@ -29,7 +29,6 @@ import (
 	"syscall"
 )
 
-// TODO: maybe add options to control which interceptor to add or not
 // TODO: submodule?
 // TODO: write unit tests!
 // TODO: add README.md and documentation for godoc
@@ -94,41 +93,9 @@ func (s *server) SetCustomRecoveryHandler(handler func(interface{}) error) {
 	s.recoveryFunc = handler
 }
 
-func (s *server) SetNewGRPC() *server {
-	if s.logger == nil {
-		panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
-	}
-
-	recoveryOpts := []grpcRecovery.Option{
-		grpcRecovery.WithRecoveryHandler(s.recoveryFunc),
-	}
-
-	streamInterceptor := grpc.StreamInterceptor(
-		grpcMiddleware.ChainStreamServer(
-			grpcTags.StreamServerInterceptor(),
-			grpcOtel.StreamServerInterceptor(),
-			grpcPrometheus.StreamServerInterceptor,
-			grpcZap.StreamServerInterceptor(s.logger),
-			grpcAuth.StreamServerInterceptor(s.jwtAuthFunc),
-			grpcRecovery.StreamServerInterceptor(),
-			grpcRecovery.StreamServerInterceptor(recoveryOpts...)))
-	unaryInterceptor := grpc.UnaryInterceptor(
-		grpcMiddleware.ChainUnaryServer(
-			grpcTags.UnaryServerInterceptor(),
-			grpcOtel.UnaryServerInterceptor(),
-			grpcPrometheus.UnaryServerInterceptor,
-			grpcZap.UnaryServerInterceptor(s.logger),
-			grpcAuth.UnaryServerInterceptor(s.jwtAuthFunc),
-			grpcRecovery.UnaryServerInterceptor(),
-			grpcRecovery.UnaryServerInterceptor(recoveryOpts...)))
-
-	s.server = grpc.NewServer(streamInterceptor, unaryInterceptor)
-	return s
-}
-
-func (s *server) SetNewCustomGRPC(opts ...*GRPCOptions) *server {
+func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 	if len(opts) == 0 || opts == nil {
-		return s.SetNewGRPC()
+		return s.setDefaultGRPC()
 	}
 
 	stream := make([]grpc.StreamServerInterceptor, 0)
@@ -169,11 +136,6 @@ func (s *server) SetNewCustomGRPC(opts ...*GRPCOptions) *server {
 		stream = append(stream, grpcRecovery.StreamServerInterceptor(recoveryOpts...))
 	}
 
-	fmt.Println("------------")
-	fmt.Println(len(unary))
-	fmt.Println(len(stream))
-	fmt.Println("------------")
-
 	serverOpts := make([]grpc.ServerOption, 0)
 	serverOpts = append(serverOpts, grpc.StreamInterceptor(grpcMiddleware.ChainStreamServer(stream...)))
 	serverOpts = append(serverOpts, grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(unary...)))
@@ -185,12 +147,40 @@ func (s *server) SetNewCustomGRPC(opts ...*GRPCOptions) *server {
 		serverOpts = append(serverOpts, grpc.MaxRecvMsgSize(x.MaxReceiveSize))
 	}
 
-	fmt.Println("------------")
-	fmt.Println(len(serverOpts))
-	fmt.Println("------------")
-
 	s.server = grpc.NewServer(serverOpts...)
 
+	return s
+}
+
+func (s *server) setDefaultGRPC() *server {
+	if s.logger == nil {
+		panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
+	}
+
+	recoveryOpts := []grpcRecovery.Option{
+		grpcRecovery.WithRecoveryHandler(s.recoveryFunc),
+	}
+
+	streamInterceptor := grpc.StreamInterceptor(
+		grpcMiddleware.ChainStreamServer(
+			grpcTags.StreamServerInterceptor(),
+			grpcOtel.StreamServerInterceptor(),
+			grpcPrometheus.StreamServerInterceptor,
+			grpcZap.StreamServerInterceptor(s.logger),
+			grpcAuth.StreamServerInterceptor(s.jwtAuthFunc),
+			grpcRecovery.StreamServerInterceptor(),
+			grpcRecovery.StreamServerInterceptor(recoveryOpts...)))
+	unaryInterceptor := grpc.UnaryInterceptor(
+		grpcMiddleware.ChainUnaryServer(
+			grpcTags.UnaryServerInterceptor(),
+			grpcOtel.UnaryServerInterceptor(),
+			grpcPrometheus.UnaryServerInterceptor,
+			grpcZap.UnaryServerInterceptor(s.logger),
+			grpcAuth.UnaryServerInterceptor(s.jwtAuthFunc),
+			grpcRecovery.UnaryServerInterceptor(),
+			grpcRecovery.UnaryServerInterceptor(recoveryOpts...)))
+
+	s.server = grpc.NewServer(streamInterceptor, unaryInterceptor)
 	return s
 }
 
