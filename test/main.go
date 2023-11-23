@@ -32,7 +32,7 @@ func main() {
 	server.SetCustomHTTPPort("6666")
 	//server.SetCustomJwtHandler()
 	//server.SetCustomRecoveryHandler()
-	server.SetNewCustomGRPC(&wehublib.GRPCOptions{
+	server.SetNewGRPC(&wehublib.GRPCOptions{
 		TagsInterceptor:       true,
 		OtelInterceptor:       true,
 		PrometheusInterceptor: true,

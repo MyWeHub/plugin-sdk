@@ -10,12 +10,15 @@ import (
 	"github.com/amsokol/mongo-go-driver-protobuf/pmongo"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/pprof"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpcAuth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpcRecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpcTags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	grpcOtel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
@@ -24,15 +27,16 @@ import (
 	"google.golang.org/grpc/status"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-// TODO: submodule?
 // TODO: write unit tests!
 // TODO: add README.md and documentation for godoc
 // TODO: grpc status pkg!
+// TODO: add prometheus handler route!
 // TODO:
 
 type server struct {
@@ -254,7 +258,11 @@ func (s *server) ServeTest(lis net.Listener) error {
 
 func (s *server) serveHTTP() {
 	app := fiber.New()
+	app.Use(compress.New())
 	app.Static("/", "/go/bin/public", fiber.Static{Compress: true})
+	http.Handle("/metrics", promhttp.Handler())
+	app.Use(pprof.New())
+	go http.ListenAndServe(":2112", nil)
 	go app.Listen(fmt.Sprintf(":%s", s.httpPort))
 }
 
