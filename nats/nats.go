@@ -76,10 +76,6 @@ func (n *Nats) Listen(ctx context.Context) {
 
 	configs := make([]NodeConfig, 0, len(natsConfigs))
 	for _, conf := range natsConfigs {
-		/*snc, err := conf.Decode()
-		if err == nil {
-			configs = append(configs, *snc)
-		}*/
 		configs = append(configs, conf)
 	}
 	logger.Info("Received plugin config", zap.Any("configs", configs))
@@ -94,10 +90,6 @@ func (n *Nats) Listen(ctx context.Context) {
 		}
 		configs := make([]NodeConfig, 0, len(natsConfigs))
 		for _, conf := range natsConfigs {
-			/*snc, err := conf.Decode()
-			if err == nil {
-				configs = append(configs, *snc)
-			}*/
 			configs = append(configs, conf)
 		}
 		defer span.End()
@@ -110,19 +102,12 @@ func (n *Nats) Close() {
 	n.conn.Close()
 }
 
-/*type NodeConfig struct {
-	NodeType      string
-	ID            string `bson:"_id"`
-	WorkflowID    string
-	Configuration proto.Message
-	ClientID      string
-}*/
-
 type NodeConfig struct {
 	NodeType      string
 	ID            string `bson:"_id"`
 	WorkflowID    string
 	Configuration json.RawMessage
+	ClientID      string
 }
 
 func (s *NodeConfig) DecodeConfig(config proto.Message) error {
