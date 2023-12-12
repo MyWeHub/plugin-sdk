@@ -11,8 +11,6 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
 	"time"
 )
 
@@ -22,11 +20,12 @@ var (
 )
 
 type Nats struct {
-	conn  *nats.EncodedConn
-	Cache map[string]*NodeConfig
+	conn       *nats.EncodedConn
+	Cache      map[string]*NodeConfig
+	configType interface{}
 }
 
-func NewNats(t *telemetry.Telemetry) *Nats {
+func New(t *telemetry.Telemetry) *Nats {
 	logger = t.GetLogger()
 	tracer = t.GetTracer()
 
@@ -102,14 +101,23 @@ func (n *Nats) Close() {
 	n.conn.Close()
 }
 
+type nodeConfigNats struct {
+	nodeType      string
+	id            string `bson:"_id"`
+	workflowID    string
+	configuration json.RawMessage
+	clientID      string
+}
+
 type NodeConfig struct {
 	NodeType      string
 	ID            string `bson:"_id"`
 	WorkflowID    string
-	Configuration json.RawMessage
+	Configuration interface{}
 	ClientID      string
 }
 
+/*
 func (s *NodeConfig) DecodeConfig(config proto.Message) error {
 	err := protojson.Unmarshal(s.Configuration, config)
 	if err != nil {
@@ -117,4 +125,21 @@ func (s *NodeConfig) DecodeConfig(config proto.Message) error {
 	}
 
 	return nil
-}
+}*/
+
+/*func (s *nodeConfigNats) decode(configType interface{}) (*NodeConfig, error) {
+	reflect.TypeOf(configType)
+	var config pbconf.Configuration
+	err := protojson.Unmarshal(s.configuration, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &NodeConfig{
+		NodeType:      s.nodeType,
+		ID:            s.id,
+		WorkflowID:    s.workflowID,
+		Configuration: &config,
+		ClientID:      s.clientID,
+	}, nil
+}*/

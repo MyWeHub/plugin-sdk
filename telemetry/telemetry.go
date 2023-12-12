@@ -19,7 +19,7 @@ type Telemetry struct {
 	tracer trace.Tracer
 }
 
-func NewTelemetry() *Telemetry {
+func New() *Telemetry {
 	serviceName := util.GetEnv("OTEL_JAEGER_SERVICE_NAME", false, "", true)
 	tp := newTracerProvider(serviceName)
 

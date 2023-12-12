@@ -3,6 +3,7 @@ package wehublib
 import (
 	"context"
 	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"errors"
@@ -21,10 +22,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	grpcOtel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/structpb"
 	"log"
 	"net"
 	"net/http"
@@ -36,12 +39,13 @@ import (
 // TODO: write unit tests!
 // TODO: add README.md and documentation for godoc
 // TODO: grpc status pkg!
-// TODO: add prometheus handler route!
+// TODO: type Process(context, action, input, conf) + move serviceServer to lib
+// TODO: decorator pattern for initializer (dynamic fields in serviceServer)
+// TODO: make process easier e.g. move defer telemetry to lib and don't pass tele to each function?
 // TODO:
 
 type server struct {
 	server       *grpc.Server
-	logger       *zap.Logger
 	grpcPort     string
 	httpPort     string
 	jwtAuthFunc  func(ctx context.Context) (context.Context, error)
@@ -64,9 +68,23 @@ type GRPCOptions struct {
 	MaxSendSize           int
 }
 
+type IService interface {
+	Process(ctx context.Context, in *structpb.Struct, conf interface{}, action int32, workflowData string) (*structpb.Struct, error)
+}
+
+type grpcServer struct {
+	pb.UnimplementedPluginRunnerServiceServer
+	nats    *nats.Nats
+	service IService
+}
+
+var logger *zap.Logger
+var tracer trace.Tracer
+
 func NewServer(t *telemetry.Telemetry) *server {
+	logger = t.GetLogger()
+	tracer = t.GetTracer()
 	return &server{
-		logger:       t.GetLogger(),
 		grpcPort:     util.GetEnv("GRPC_PORT", true, "6852", false),
 		httpPort:     util.GetEnv("HTTP_PORT", true, "3000", false),
 		jwtAuthFunc:  defaultAuthFunc,
@@ -74,11 +92,16 @@ func NewServer(t *telemetry.Telemetry) *server {
 	}
 }
 
-func (s *server) SetServiceServer(srv pb.PluginRunnerServiceServer) {
+func (s *server) RegisterServer(ctx context.Context, is IService) {
 	if s.server == nil {
 		panic(errors.New("grpc server must be initialized before setting service server"))
 	}
-	pb.RegisterPluginRunnerServiceServer(s.server, srv)
+
+	n := nats.New(nil)
+	defer n.Close()
+	n.Listen(ctx)
+
+	pb.RegisterPluginRunnerServiceServer(s.server, &grpcServer{nats: n, service: is})
 }
 
 func (s *server) SetCustomGRPCPort(p string) {
@@ -120,12 +143,12 @@ func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 		stream = append(stream, grpcPrometheus.StreamServerInterceptor)
 	}
 	if x.ZapLoggerInterceptor {
-		if s.logger == nil {
+		if logger == nil {
 			panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
 		}
 
-		unary = append(unary, grpcZap.UnaryServerInterceptor(s.logger))
-		stream = append(stream, grpcZap.StreamServerInterceptor(s.logger))
+		unary = append(unary, grpcZap.UnaryServerInterceptor(logger))
+		stream = append(stream, grpcZap.StreamServerInterceptor(logger))
 	}
 	if x.AuthInterceptor {
 		unary = append(unary, grpcAuth.UnaryServerInterceptor(s.jwtAuthFunc))
@@ -157,7 +180,7 @@ func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 }
 
 func (s *server) setDefaultGRPC() *server {
-	if s.logger == nil {
+	if logger == nil {
 		panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
 	}
 
@@ -170,7 +193,7 @@ func (s *server) setDefaultGRPC() *server {
 			grpcTags.StreamServerInterceptor(),
 			grpcOtel.StreamServerInterceptor(),
 			grpcPrometheus.StreamServerInterceptor,
-			grpcZap.StreamServerInterceptor(s.logger),
+			grpcZap.StreamServerInterceptor(logger),
 			grpcAuth.StreamServerInterceptor(s.jwtAuthFunc),
 			grpcRecovery.StreamServerInterceptor(),
 			grpcRecovery.StreamServerInterceptor(recoveryOpts...)))
@@ -179,7 +202,7 @@ func (s *server) setDefaultGRPC() *server {
 			grpcTags.UnaryServerInterceptor(),
 			grpcOtel.UnaryServerInterceptor(),
 			grpcPrometheus.UnaryServerInterceptor,
-			grpcZap.UnaryServerInterceptor(s.logger),
+			grpcZap.UnaryServerInterceptor(logger),
 			grpcAuth.UnaryServerInterceptor(s.jwtAuthFunc),
 			grpcRecovery.UnaryServerInterceptor(),
 			grpcRecovery.UnaryServerInterceptor(recoveryOpts...)))
@@ -206,7 +229,7 @@ func (s *server) Serve(opts ...*ServerOptions) {
 	}
 
 	if flagServeHttp {
-		s.logger.Info("HTTP server started", zap.String("port", s.httpPort))
+		logger.Info("HTTP server started", zap.String("port", s.httpPort))
 		s.serveHTTP()
 	}
 
@@ -230,12 +253,12 @@ func (s *server) Serve(opts ...*ServerOptions) {
 			<-sigint
 
 			// We received an interrupt signal, shut down.
-			s.logger.Info("GRPC server gracefully shutdown")
+			logger.Info("GRPC server gracefully shutdown")
 			s.server.GracefulStop()
 			close(idleConnsClosed)
 		}()
 
-		s.logger.Info("GRPC server started", zap.String("port", s.grpcPort))
+		logger.Info("GRPC server started", zap.String("port", s.grpcPort))
 		go func() {
 			if err := s.server.Serve(lis); err != nil {
 				panic(err)
@@ -245,7 +268,7 @@ func (s *server) Serve(opts ...*ServerOptions) {
 		<-idleConnsClosed
 
 	} else {
-		s.logger.Info("GRPC server started", zap.String("port", s.grpcPort))
+		logger.Info("GRPC server started", zap.String("port", s.grpcPort))
 		if err = s.server.Serve(lis); err != nil {
 			panic(err)
 		}

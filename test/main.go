@@ -3,28 +3,46 @@ package main2
 import (
 	"context"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git"
-	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
+	"fmt"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
-type serviceServer struct {
-	pb.UnimplementedPluginRunnerServiceServer
-}
-
-func (c *serviceServer) RunTest(ctx context.Context, input *pb.InputTestRequest) (*pb.InputTestResponse, error) {
-	return &pb.InputTestResponse{}, nil
-}
-
 var logger *zap.Logger
+
+type service struct{}
+
+func newService() *service {
+	return &service{}
+}
+
+func (s *service) Process(ctx context.Context, in *structpb.Struct, conf interface{}, action int32, workflowData string) (*structpb.Struct, error) {
+	return nil, nil
+}
 
 func main() {
 	ctx := context.Background()
 
 	// telemetry
-	t := telemetry.NewTelemetry()
+	t := telemetry.New()
 	defer t.ShutdownTracer(ctx)
 	defer t.SyncLogger()
+
+	//nats
+	// TODO: send pointer to pbconf.config in NewNats, then save the decoded conf in the cache, and just type assert it when you get it
+	n := nats.New(t)
+	defer n.Close()
+	n.Listen(ctx)
+	if node, ok := n.Cache["input.NodeId"]; ok {
+		fmt.Println(node.NodeType)
+		fmt.Println(node.ID)
+		fmt.Println(node.WorkflowID)
+		//fmt.Println(node.DecodeConfig(nil))
+	}
+
+	// custom plugin handler
 
 	// server
 	server := wehublib.NewServer(t)
@@ -37,23 +55,14 @@ func main() {
 		OtelInterceptor:       true,
 		PrometheusInterceptor: true,
 		ZapLoggerInterceptor:  true,
-		//AuthInterceptor:       true,
-		RecoveryInterceptor: true,
-		//MaxReceiveSize:        1024 * 1024 * 1024 * 1024,
-		//MaxSendSize:           1024 * 1024 * 1024 * 1024,
-	}).SetServiceServer(&serviceServer{})
+		AuthInterceptor:       true,
+		RecoveryInterceptor:   true,
+		MaxReceiveSize:        1024 * 1024 * 1024 * 1024,
+		MaxSendSize:           1024 * 1024 * 1024 * 1024,
+	})
+	server.RegisterServer(ctx, newService())
 	server.Serve(&wehublib.ServerOptions{DisableHTTP: false, GracefulShutdown: true})
 
-	// nats
-	//n := nats.NewNats(t)
-	//defer n.Close()
-	//n.Listen(ctx)
-	//if node, ok := n.Cache["input.NodeId"]; ok {
-	//	fmt.Println(node.NodeType)
-	//	fmt.Println(node.ID)
-	//	fmt.Println(node.WorkflowID)
-	//	fmt.Println(node.DecodeConfig(nil))
-	//}
 	//
 	//// connection service
 	//ncs, err := cs.NewConnectionService(ctx, t, &cs.Options{ExternalRequest: true})

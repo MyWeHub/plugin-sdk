@@ -37,7 +37,7 @@ func NewTesting(t *telemetry.Telemetry, srv pb.PluginRunnerServiceServer) *testi
 
 	server := wehublib.NewServer(t)
 	server.SetNewGRPC()
-	server.SetServiceServer(srv)
+	server.RegisterServer(nil, nil)
 
 	go func() {
 		if err := server.ServeTest(lis); err != nil {
