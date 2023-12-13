@@ -4,13 +4,14 @@ import (
 	"context"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git"
 	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
 	"net"
+	"time"
 )
 
 var (
@@ -31,19 +32,26 @@ type testing struct {
 	client pb.PluginRunnerServiceClient
 }
 
-func NewTesting(t *telemetry.Telemetry, srv pb.PluginRunnerServiceServer) *testing {
-	logger = t.GetLogger()
-	tracer = t.GetTracer()
-
-	server := wehublib.NewServer(t)
+// func New(n *nats.Nats, is IService) *testing {
+func New(n *nats.Nats) *testing {
+	server := wehublib.NewServer()
 	server.SetNewGRPC()
-	server.RegisterServer(nil, nil)
+	server.RegisterServer(n, nil)
 
 	go func() {
+		t := wehublib.NewTelemetry()
+		defer t.ShutdownTracer(context.Background())
+		defer t.SyncLogger()
+
+		logger = t.GetLogger()
+		tracer = t.GetTracer()
+
 		if err := server.ServeTest(lis); err != nil {
 			panic(err)
 		}
 	}()
+
+	time.Sleep(1 * time.Second)
 
 	return &testing{}
 }

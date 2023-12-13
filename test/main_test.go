@@ -1,4 +1,4 @@
-package main2
+package main
 
 import (
 	"context"
@@ -35,10 +35,10 @@ func TestTest(t *testing.T) {
 	}
 }
 
-type structy struct {
-	one   string
-	two   int
-	three bool
+type Structy struct {
+	One   string
+	Two   int
+	Three bool
 }
 
 func TestTMP(t *testing.T) {
@@ -50,9 +50,9 @@ func TestTMP(t *testing.T) {
 		ClientId:     "CLIENT_ID",
 		PartitionKey: "PARTITION_KEY",
 		ResourceType: "RESOURCE_TYPE",
-		/*one:   "SFDFDSFD",
-		two:   1,
-		three: true,*/
+		/*One:   "SFDFDSFD",
+		Two:   1,
+		Three: true,*/
 	}
 
 	marshal, err := protojson.Marshal(s)
@@ -60,15 +60,15 @@ func TestTMP(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	newType := reflect.New(reflect.TypeOf(s))
+	ttt(marshal, &schema.Schema{})
+}
 
-	newS := newType.Interface().(proto.Message)
-
-	err = protojson.Unmarshal(marshal, newS)
+func ttt(marshal []byte, m proto.Message) {
+	err := protojson.Unmarshal(marshal, m)
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
 
-	fmt.Println(newS.(*schema.Schema))
-	fmt.Println(reflect.TypeOf(newS))
+	fmt.Println(reflect.TypeOf(m))
+	fmt.Println(m.(*schema.Schema))
 }

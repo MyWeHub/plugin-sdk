@@ -9,6 +9,7 @@ plugins:
      - Mpluginrunner/pluginrunner.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner
      - Mschema/schema.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/schema
      - MserviceConnection/serviceConnection.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/serviceConnection
+     - Mconfiguration/configuration.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/configuration
    - name: go-grpc
      out: gen
      opt:
@@ -16,6 +17,7 @@ plugins:
      - Mpluginrunner/pluginrunner.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner
      - Mschema/schema.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/schema
      - MserviceConnection/serviceConnection.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/serviceConnection
+     - Mconfiguration/configuration.proto=dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/configuration
 # - name: ts
 #   out: ui/src/proto
 #   opt: force_optimize_code_size

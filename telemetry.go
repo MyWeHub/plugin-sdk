@@ -1,7 +1,9 @@
-package telemetry
+package wehublib
 
 import (
 	"context"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/connectionService"
+	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
@@ -19,14 +21,20 @@ type Telemetry struct {
 	tracer trace.Tracer
 }
 
-func New() *Telemetry {
+func NewTelemetry() *Telemetry {
 	serviceName := util.GetEnv("OTEL_JAEGER_SERVICE_NAME", false, "", true)
 	tp := newTracerProvider(serviceName)
 
+	logger = newZapLogger()
+	tracer = tp.Tracer(serviceName)
+
+	nats.SetTelemetry(logger, tracer)
+	connectionService.SetTelemetry(logger, tracer)
+
 	return &Telemetry{
-		logger: newZapLogger(),
+		logger: logger,
 		tp:     tp,
-		tracer: tp.Tracer(serviceName),
+		tracer: tracer,
 	}
 }
 

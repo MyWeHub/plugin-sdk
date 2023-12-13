@@ -4,7 +4,6 @@ import (
 	"context"
 	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"errors"
 	"fmt"
@@ -27,6 +26,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 	"log"
 	"net"
@@ -39,10 +39,12 @@ import (
 // TODO: write unit tests!
 // TODO: add README.md and documentation for godoc
 // TODO: grpc status pkg!
-// TODO: type Process(context, action, input, conf) + move serviceServer to lib
-// TODO: decorator pattern for initializer (dynamic fields in serviceServer)
-// TODO: make process easier e.g. move defer telemetry to lib and don't pass tele to each function?
 // TODO:
+
+var (
+	logger *zap.Logger
+	tracer trace.Tracer
+)
 
 type server struct {
 	server       *grpc.Server
@@ -69,7 +71,7 @@ type GRPCOptions struct {
 }
 
 type IService interface {
-	Process(ctx context.Context, in *structpb.Struct, conf interface{}, action int32, workflowData string) (*structpb.Struct, error)
+	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*structpb.Struct, error)
 }
 
 type grpcServer struct {
@@ -78,12 +80,7 @@ type grpcServer struct {
 	service IService
 }
 
-var logger *zap.Logger
-var tracer trace.Tracer
-
-func NewServer(t *telemetry.Telemetry) *server {
-	logger = t.GetLogger()
-	tracer = t.GetTracer()
+func NewServer() *server {
 	return &server{
 		grpcPort:     util.GetEnv("GRPC_PORT", true, "6852", false),
 		httpPort:     util.GetEnv("HTTP_PORT", true, "3000", false),
@@ -92,14 +89,10 @@ func NewServer(t *telemetry.Telemetry) *server {
 	}
 }
 
-func (s *server) RegisterServer(ctx context.Context, is IService) {
+func (s *server) RegisterServer(n *nats.Nats, is IService) {
 	if s.server == nil {
 		panic(errors.New("grpc server must be initialized before setting service server"))
 	}
-
-	n := nats.New(nil)
-	defer n.Close()
-	n.Listen(ctx)
 
 	pb.RegisterPluginRunnerServiceServer(s.server, &grpcServer{nats: n, service: is})
 }
@@ -216,6 +209,10 @@ func (s *server) Serve(opts ...*ServerOptions) {
 		panic(errors.New("server not initialized"))
 	}
 
+	if s.httpPort == s.grpcPort {
+		panic(errors.New("http and grpc ports are the same"))
+	}
+
 	flagServeHttp := true
 	flagGracefulShutdown := true
 
@@ -235,7 +232,7 @@ func (s *server) Serve(opts ...*ServerOptions) {
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", s.grpcPort))
 	if err != nil {
-		panic(err)
+		logger.Fatal("net.Listen", zap.Error(err))
 	}
 
 	if flagGracefulShutdown {

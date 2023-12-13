@@ -3,7 +3,6 @@ package connectionService
 import (
 	"context"
 	pbsc "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/serviceConnection"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
 	"errors"
 	"fmt"
 	grpcOtel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -37,10 +36,12 @@ type connectionMessage struct {
 	message *pbsc.ConnectionsMessage
 }
 
-func NewConnectionService(ctx context.Context, t *telemetry.Telemetry, opts ...*Options) (*ConnectionService, error) {
-	logger = t.GetLogger()
-	tracer = t.GetTracer()
+func SetTelemetry(l *zap.Logger, t trace.Tracer) {
+	logger = l
+	tracer = t
+}
 
+func New(ctx context.Context, opts ...*Options) (*ConnectionService, error) {
 	url := internalURL
 	if opts != nil && len(opts) > 0 {
 		switch {

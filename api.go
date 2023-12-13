@@ -6,9 +6,12 @@ import (
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"errors"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 var pluginName = util.GetEnv("PLUGIN_NAME", false, "", true)
@@ -18,13 +21,24 @@ func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2
 		return nil, errors.New("input is empty")
 	}
 
-	/*var config pbconf.Configuration
-	err := protojson.Unmarshal(input.Configuration, &config)
+	//newRef := reflect.New(reflect.TypeOf(s.nats.ConfigType))
+	//config := newRef.Interface()
+
+	config := &anypb.Any{}
+	byteConfig := &wrappers.BytesValue{
+		Value: input.Configuration,
+	}
+	if err := anypb.MarshalFrom(config, byteConfig, proto.MarshalOptions{}); err != nil {
+		return nil, err
+	}
+
+	//var config pbconf.Configuration
+	/*err := protojson.Unmarshal(input.Configuration, config)
 	if err != nil {
 		return nil, fmt.Errorf("wrong configuration: %w", err)
 	}*/
 
-	vpb, err := s.service.Process(ctx, input.Inputs, nil, input.Action, *input.NodeId)
+	vpb, err := s.service.Process(ctx, input.Inputs, config, input.Action, *input.NodeId) // TODO: check NodeID
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +57,7 @@ func (s *grpcServer) RunV2(ctx context.Context, input *pb.InputRequestV2) (*pb.I
 		span.RecordError(err)
 		return nil, status.Convert(err).Err()
 	} else {
-		vpb, err := s.service.Process(ctx, input.Inputs, node, input.Action, input.NodeId)
+		vpb, err := s.service.Process(ctx, input.Inputs, node.Configuration, input.Action, input.NodeId)
 		if err != nil {
 			return nil, err
 		}
