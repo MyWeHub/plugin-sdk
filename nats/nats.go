@@ -73,7 +73,7 @@ func (n *Nats) Listen(ctx context.Context) {
 	req := fmt.Sprintf("requestPluginConfig.%s", pluginName)
 	span.SetAttributes(attribute.String("topic", req))
 
-	natsConfigs := make([]nodeConfigNats, 0)
+	natsConfigs := make([]NodeConfigNats, 0)
 	err := n.conn.Request(req, "", &natsConfigs, 10*time.Second)
 	if err != nil {
 		logger.Error("Request failed", zap.Error(err))
@@ -120,12 +120,12 @@ func (n *Nats) Close() {
 	n.conn.Close()
 }
 
-type nodeConfigNats struct {
-	nodeType      string
-	id            string `bson:"_id"`
-	workflowID    string
-	configuration json.RawMessage
-	clientID      string
+type NodeConfigNats struct {
+	NodeType      string
+	Id            string `bson:"_id"`
+	WorkflowId    string
+	Configuration json.RawMessage
+	ClientId      string
 }
 
 type NodeConfig struct {
@@ -146,21 +146,21 @@ func (s *NodeConfig) DecodeConfig(config proto.Message) error {
 	return nil
 }*/
 
-func (s *nodeConfigNats) decode(config proto.Message) (*NodeConfig, error) {
+func (s *NodeConfigNats) decode(config proto.Message) (*NodeConfig, error) {
 	//newRef := reflect.New(reflect.TypeOf(configRef))
 	//newConf := newRef.Interface()
 
 	//err := protojson.Unmarshal(s.configuration, &newConf)
-	err := protojson.Unmarshal(s.configuration, config)
+	err := protojson.Unmarshal(s.Configuration, config)
 	if err != nil {
 		return nil, err
 	}
 
 	return &NodeConfig{
-		NodeType:      s.nodeType,
-		ID:            s.id,
-		WorkflowID:    s.workflowID,
+		NodeType:      s.NodeType,
+		ID:            s.Id,
+		WorkflowID:    s.WorkflowId,
 		Configuration: config,
-		ClientID:      s.clientID,
+		ClientID:      s.ClientId,
 	}, nil
 }

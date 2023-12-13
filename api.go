@@ -20,23 +20,6 @@ func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2
 		return nil, errors.New("input is empty")
 	}
 
-	//newRef := reflect.New(reflect.TypeOf(s.nats.ConfigType))
-	//config := newRef.Interface()
-
-	/*config := &anypb.Any{}
-	byteConfig := &wrappers.BytesValue{
-		Value: input.Configuration,
-	}
-	if err := anypb.MarshalFrom(config, byteConfig, proto.MarshalOptions{}); err != nil {
-		return nil, err
-	}*/
-
-	//var config pbconf.Configuration
-	/*err := protojson.Unmarshal(input.Configuration, config)
-	if err != nil {
-		return nil, fmt.Errorf("wrong configuration: %w", err)
-	}*/
-
 	workflowData := ""
 	if input.NodeId != nil {
 		workflowData = *input.NodeId
