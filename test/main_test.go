@@ -2,13 +2,14 @@ package main2
 
 import (
 	"context"
+	confPB "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/configuration"
 	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
 	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/schema"
 	testingLib "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/testing"
-	"fmt"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"reflect"
+	"google.golang.org/protobuf/types/known/anypb"
 	"testing"
 )
 
@@ -55,20 +56,45 @@ func TestTMP(t *testing.T) {
 		Three: true,*/
 	}
 
-	marshal, err := protojson.Marshal(s)
+	_, err := protojson.Marshal(s)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ttt(marshal, &schema.Schema{})
 }
 
-func ttt(marshal []byte, m proto.Message) {
-	err := protojson.Unmarshal(marshal, m)
+func TestTMP2(t *testing.T) {
+	config1 := confPB.Configuration{
+		One:   "ASD",
+		Two:   2,
+		Three: true,
+	}
+
+	bytes, err := protojson.Marshal(&config1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	config2 := &anypb.Any{}
+	byteConfig := &wrappers.BytesValue{Value: bytes}
+	if err := anypb.MarshalFrom(config2, byteConfig, proto.MarshalOptions{}); err != nil {
+		t.Fatal(err)
+	}
+
+	ttt(config2)
+}
+
+func ttt(m proto.Message) {
+	var anyout wrappers.BytesValue
+
+	err := anypb.UnmarshalTo(m.(*anypb.Any), &anyout, proto.UnmarshalOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(reflect.TypeOf(m))
-	fmt.Println(m.(*schema.Schema))
+	var out confPB.Configuration
+	err = protojson.Unmarshal(anyout.Value, &out)
+	if err != nil {
+		panic(err)
+	}
 }
