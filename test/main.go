@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	wehublib "github.com/MyWeHub/plugin_sdk"
-	confPB "github.com/MyWeHub/plugin_sdk/gen/configuration"
 	"github.com/MyWeHub/plugin_sdk/nats"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -32,7 +31,7 @@ func main() {
 	defer t.SyncLogger()
 
 	//nats
-	n := nats.New(&confPB.Configuration{})
+	n := nats.New(nil)
 	defer n.Close()
 	n.Listen(ctx)
 	if node, ok := n.Cache["input.NodeId"]; ok {

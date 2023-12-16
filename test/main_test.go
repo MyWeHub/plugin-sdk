@@ -2,7 +2,6 @@ package main2
 
 import (
 	"context"
-	confPB "github.com/MyWeHub/plugin_sdk/gen/configuration"
 	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
 	"github.com/MyWeHub/plugin_sdk/gen/schema"
 	testingLib "github.com/MyWeHub/plugin_sdk/testing"
@@ -64,13 +63,8 @@ func TestTMP(t *testing.T) {
 }
 
 func TestTMP2(t *testing.T) {
-	config1 := confPB.Configuration{
-		One:   "ASD",
-		Two:   2,
-		Three: true,
-	}
 
-	bytes, err := protojson.Marshal(&config1)
+	bytes, err := protojson.Marshal(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,8 +86,7 @@ func ttt(m proto.Message) {
 		panic(err)
 	}
 
-	var out confPB.Configuration
-	err = protojson.Unmarshal(anyout.Value, &out)
+	err = protojson.Unmarshal(anyout.Value, nil)
 	if err != nil {
 		panic(err)
 	}
