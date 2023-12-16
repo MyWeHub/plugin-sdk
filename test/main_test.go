@@ -2,10 +2,10 @@ package main2
 
 import (
 	"context"
-	confPB "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/configuration"
-	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/schema"
-	testingLib "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/testing"
+	confPB "github.com/MyWeHub/plugin_sdk/gen/configuration"
+	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
+	"github.com/MyWeHub/plugin_sdk/gen/schema"
+	testingLib "github.com/MyWeHub/plugin_sdk/testing"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"

@@ -6,7 +6,7 @@ Using this library obligates you to use it's own generated protocol buffer files
 
 ## Get Package
 ```shell
-go get dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git
+go get github.com/MyWeHub/plugin_sdk
 ```
 
 ## Telemetry
@@ -14,7 +14,7 @@ Every package in the library needs the telemetry instance, so we need to create 
 ```go
 package main
 
-import "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
+import "github.com/MyWeHub/plugin_sdk/telemetry"
 
 func main() {
 	t := telemetry.NewTelemetry()
@@ -28,7 +28,7 @@ In order to initialize the GRPC and HTTP server that every plugin needs, you can
 ```go
 package main
 
-import "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git"
+import "github.com/MyWeHub/plugin_sdk"
 
 func main() {
 	server := wehublib.NewServer(t)
@@ -45,7 +45,7 @@ Invoke Connection Service as described below:
 ```go
 package main
 
-import cs "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/connectionService"
+import cs "github.com/MyWeHub/plugin_sdk/connectionService"
 
 func main() {
 	ncs, err := cs.NewConnectionService(ctx, t, &cs.Options{ExternalRequest: true})
@@ -74,7 +74,7 @@ Every plugin uses Nats message broker in order to receive its configuration when
 package main
 
 import (
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
+	"github.com/MyWeHub/plugin_sdk/nats"
 	"log"
 )
 
@@ -104,9 +104,9 @@ package main
 import (
 	"context"
 	"testing"
-	testingLib "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/testing"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/telemetry"
-	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
+	testingLib "github.com/MyWeHub/plugin_sdk/testing"
+	"github.com/MyWeHub/plugin_sdk/telemetry"
+	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
 )
 
 var client pb.PluginRunnerServiceClient

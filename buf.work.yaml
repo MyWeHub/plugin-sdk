@@ -9,4 +9,3 @@ directories:
   - proto/common/schema
   - proto/common/serviceConnection
   - proto/common/vendor
-  - proto/configuration

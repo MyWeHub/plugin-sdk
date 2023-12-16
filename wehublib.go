@@ -2,11 +2,11 @@ package wehublib
 
 import (
 	"context"
-	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"errors"
 	"fmt"
+	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
+	"github.com/MyWeHub/plugin_sdk/nats"
+	"github.com/MyWeHub/plugin_sdk/util"
 	"github.com/amsokol/mongo-go-driver-protobuf/pmongo"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"

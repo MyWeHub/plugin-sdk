@@ -2,10 +2,10 @@ package wehublib
 
 import (
 	"context"
-	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"errors"
 	"fmt"
+	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
+	"github.com/MyWeHub/plugin_sdk/util"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"google.golang.org/grpc/status"

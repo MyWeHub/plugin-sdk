@@ -1,4 +1,4 @@
-module dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git
+module github.com/MyWeHub/plugin_sdk
 
 go 1.20
 

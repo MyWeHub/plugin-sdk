@@ -2,10 +2,10 @@ package nats
 
 import (
 	"context"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/util"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MyWeHub/plugin_sdk/util"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"

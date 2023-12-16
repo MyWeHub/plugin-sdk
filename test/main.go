@@ -2,10 +2,10 @@ package main2
 
 import (
 	"context"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git"
-	confPB "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/configuration"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
 	"fmt"
+	wehublib "github.com/MyWeHub/plugin_sdk"
+	confPB "github.com/MyWeHub/plugin_sdk/gen/configuration"
+	"github.com/MyWeHub/plugin_sdk/nats"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"

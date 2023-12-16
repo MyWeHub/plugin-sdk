@@ -2,9 +2,8 @@ package testing
 
 import (
 	"context"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git"
-	pb "dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/gen/pluginrunner"
-	"dev.azure.com/WeConnectTechnology/ExchangeHub/_git/wehublib.git/nats"
+	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
+	"github.com/MyWeHub/plugin_sdk/nats"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
