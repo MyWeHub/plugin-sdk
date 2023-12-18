@@ -7,7 +7,7 @@
 package pluginrunner
 
 import (
-	schema "github.com/MyWeHub/plugin_sdk/gen/schema"
+	schema "github.com/MyWeHub/plugin-sdk/gen/schema"
 	_ "github.com/amsokol/protoc-gen-gotag/tagger"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"

@@ -6,16 +6,16 @@ plugins:
      out: gen
      opt:
      - paths=source_relative
-     - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin_sdk/gen/pluginrunner
-     - Mschema/schema.proto=github.com/MyWeHub/plugin_sdk/gen/schema
-     - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin_sdk/gen/serviceConnection
+     - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin-sdk/gen/pluginrunner
+     - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
+     - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
    - name: go-grpc
      out: gen
      opt:
      - paths=source_relative
-     - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin_sdk/gen/pluginrunner
-     - Mschema/schema.proto=github.com/MyWeHub/plugin_sdk/gen/schema
-     - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin_sdk/gen/serviceConnection
+     - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin-sdk/gen/pluginrunner
+     - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
+     - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
 # - name: ts
 #   out: ui/src/proto
 #   opt: force_optimize_code_size

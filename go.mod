@@ -1,4 +1,4 @@
-module github.com/MyWeHub/plugin_sdk
+module github.com/MyWeHub/plugin-sdk
 
 go 1.20
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	pbsc "github.com/MyWeHub/plugin_sdk/gen/serviceConnection"
+	pbsc "github.com/MyWeHub/plugin-sdk/gen/serviceConnection"
 	grpcOtel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"

@@ -2,9 +2,9 @@ package main2
 
 import (
 	"context"
-	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
-	"github.com/MyWeHub/plugin_sdk/gen/schema"
-	testingLib "github.com/MyWeHub/plugin_sdk/testing"
+	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
+	"github.com/MyWeHub/plugin-sdk/gen/schema"
+	testingLib "github.com/MyWeHub/plugin-sdk/testing"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"

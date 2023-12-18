@@ -6,7 +6,7 @@ Using this library obligates you to use it's own generated protocol buffer files
 
 ## Get Package
 ```shell
-go get github.com/MyWeHub/plugin_sdk
+go get github.com/MyWeHub/plugin-sdk
 ```
 
 ## Telemetry
@@ -14,7 +14,7 @@ Every package in the library needs the telemetry instance, so we need to create 
 ```go
 package main
 
-import "github.com/MyWeHub/plugin_sdk/telemetry"
+import "github.com/MyWeHub/plugin-sdk/telemetry"
 
 func main() {
 	t := telemetry.NewTelemetry()
@@ -28,7 +28,7 @@ In order to initialize the GRPC and HTTP server that every plugin needs, you can
 ```go
 package main
 
-import "github.com/MyWeHub/plugin_sdk"
+import "github.com/MyWeHub/plugin-sdk"
 
 func main() {
 	server := wehublib.NewServer(t)
@@ -45,7 +45,7 @@ Invoke Connection Service as described below:
 ```go
 package main
 
-import cs "github.com/MyWeHub/plugin_sdk/connectionService"
+import cs "github.com/MyWeHub/plugin-sdk/connectionService"
 
 func main() {
 	ncs, err := cs.NewConnectionService(ctx, t, &cs.Options{ExternalRequest: true})
@@ -74,7 +74,7 @@ Every plugin uses Nats message broker in order to receive its configuration when
 package main
 
 import (
-	"github.com/MyWeHub/plugin_sdk/nats"
+	"github.com/MyWeHub/plugin-sdk/nats"
 	"log"
 )
 
@@ -104,9 +104,9 @@ package main
 import (
 	"context"
 	"testing"
-	testingLib "github.com/MyWeHub/plugin_sdk/testing"
-	"github.com/MyWeHub/plugin_sdk/telemetry"
-	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
+	testingLib "github.com/MyWeHub/plugin-sdk/testing"
+	"github.com/MyWeHub/plugin-sdk/telemetry"
+	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
 )
 
 var client pb.PluginRunnerServiceClient

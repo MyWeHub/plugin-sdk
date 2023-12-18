@@ -3,8 +3,8 @@ package main2
 import (
 	"context"
 	"fmt"
-	wehublib "github.com/MyWeHub/plugin_sdk"
-	"github.com/MyWeHub/plugin_sdk/nats"
+	wehublib "github.com/MyWeHub/plugin-sdk"
+	"github.com/MyWeHub/plugin-sdk/nats"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"

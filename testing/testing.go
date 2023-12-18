@@ -2,8 +2,8 @@ package testing
 
 import (
 	"context"
-	pb "github.com/MyWeHub/plugin_sdk/gen/pluginrunner"
-	"github.com/MyWeHub/plugin_sdk/nats"
+	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
+	"github.com/MyWeHub/plugin-sdk/nats"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

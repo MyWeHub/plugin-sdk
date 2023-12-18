@@ -2,9 +2,9 @@ package wehublib
 
 import (
 	"context"
-	"github.com/MyWeHub/plugin_sdk/connectionService"
-	"github.com/MyWeHub/plugin_sdk/nats"
-	"github.com/MyWeHub/plugin_sdk/util"
+	"github.com/MyWeHub/plugin-sdk/connectionService"
+	"github.com/MyWeHub/plugin-sdk/nats"
+	"github.com/MyWeHub/plugin-sdk/util"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
