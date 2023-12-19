@@ -1,61 +1,144 @@
-# Wehublib
-This is the repository of all the boilerplate and useful pieces of code that we use in WeHub Fusion Company. This repository is meant to be used in every plugin and also increase the speed of plugin development.
+#Plugin SDK
+This library consists of all the code and tools needed to create a plugin in WeHub Fusion Platform and will remove the need to initialize any part of the server and unify all of the plugins initiation code with one single source, so that developers can simply just focus on the logic of each app.
 
-### Note: 
-Using this library obligates you to use it's own generated protocol buffer files, instead of generating it separately for every plugin.
+#Address
+https://github.com/ariakwehub/plugin_sdk
 
-## Get Package
-```shell
-go get github.com/MyWeHub/plugin-sdk
-```
+#Features
+- GRPC Server
+- HTTP Server
+- Telemetry
+- Nats
+- Connection Service
+- Testing [WIP]
+- Utilities [WIP]
 
-## Telemetry
-Every package in the library needs the telemetry instance, so we need to create one before we do anything else:
+#Getting Started
+Run the command below in your project directory to get the plugin SDK and add it to your project modules:
+```bash
+go get -u github.com/MyWeHub/plugin-sdk
+``` 
+The code below will initialize a simple server for plugins.
+
+**main.go**
 ```go
 package main
 
-import "github.com/MyWeHub/plugin-sdk/telemetry"
+import (
+	"context"
+	sdk "github.com/MyWeHub/plugin-sdk"
+	"github.com/MyWeHub/plugin-sdk/nats"
+	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
+	pbconf "workflowplugin/gen/configuration"
+)
+
+var (
+	logger *zap.Logger
+	tracer trace.Tracer
+)
 
 func main() {
-	t := telemetry.NewTelemetry()
+	ctx := context.Background()
+
+	// telemetry
+	t := sdk.NewTelemetry()
 	defer t.ShutdownTracer(ctx)
 	defer t.SyncLogger()
+
+        logger = t.GetLogger()
+	tracer = t.GetTracer()
+
+	//nats
+	n := nats.New(&confPB.Configuration{})
+	defer n.Close()
+	n.Listen(ctx)
+
+	// server
+	server := sdk.NewServer()
+	server.SetNewGRPC()
+	server.RegisterServer(n, newService())
+	server.Serve()
 }
 ```
 
-## Server
-In order to initialize the GRPC and HTTP server that every plugin needs, you can simply use the code below:
+**server.go**
+
 ```go
 package main
 
-import "github.com/MyWeHub/plugin-sdk"
+import (
+	"context"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/structpb"
+	pbconf "workflowplugin/gen/configuration"
+)
 
-func main() {
-	server := wehublib.NewServer(t)
-	server.SetNewGRPC().SetServiceServer(&serviceServer{})
-	server.SetCustomGRPCPort("6666")
-	server.SetCustomHTTPPort("6666")
-	server.SetCustomJwtHandler(...)
-	server.SetCustomRecoveryHandler(...)
-	server.Serve(&wehublib.ServerOptions{DisableHTTP: false, GracefulShutdown: true})
+type service struct{}
+
+func newService() *service {
+	return &service{}
+}
+
+func (s *service) Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*structpb.Struct, error) {
+        if in == nil || in.Fields == nil {
+		return nil, errors.New("input is empty")
+	}
+
+	config := conf.(*pbconf.Configuration)
+
+        // Implement Logic...
+
+	return nil, nil
 }
 ```
-## Connection Service
-Invoke Connection Service as described below:
+1. Create a global `logger` and `tracer` instance.
+2. Create a service struct. It can consist of any extra field that you need depending on the logic of the application and populate it at runtime, etc...
+   2.1. Create a builder function for the service struct. It is better to do so if you aim to populate it [optional]
+3. The server accepts a `Process()` method on the service instance passed to the Server Registrar. This is where you will need to implement your application logic.
+4. In the main function, create a telemetry instance. This instance is meant to be used both by the library and the application simultaneously. When you create this instance, the library uses your instance as well, so please don't create a second instance of it. Then populate the global variables created in step 1 and use them throughout your application logic for instrumentation.
+5. Create a new `Nats` instance, give the pointer to an instance of the generated proto.Configuration of your plugin, and call the `Listen()` method for it to start listening on your plugin-specific inbound configuration in the published workflows. If it receives any configuration, it will decode and cache the value for later use.
+6. Configure and start the server by creating a new `server` instance, set a new GRPC server, register your server and pass the nats instance to it, and serve.
+   6.1 `server.SetNewGRPC()` accepts an optional `GRPCOptions{}` struct in which allows you to customize your server such as controlling which middlewares to include or change the maximum size of send or receive for each message.
+   6.2 There are multiple methods supported on the `server` instance where you can use to further customize your server, but for them to take effect, you must call them before the `server.SetNewGRPC()` method since after this method is called, all of the server properties are set and cannot be changed afterwards.
+   6.3 `server.Serve()` accepts an optional`ServerOptions{}` struct in which allows you to declare if you want the library not to start the HTTP server, or to not include graceful shutdown in the program.
+   #Environment Variables
+   The library needs this set of environment variables in order to function properly (please replace `plugin-name` with your plugin name):
+```json
+{
+       "GRPC_PORT": "6852",
+       "HTTP_PORT": "3000",
+       "JAEGER_SERVICE_NAME": "plugin-name",
+       "NATS": "nats://localhost:4222",
+       "OTEL_EXPORTER_JAEGER_AGENT_HOST": "localhost",
+       "OTEL_EXPORTER_JAEGER_AGENT_PORT": "6831",
+       "OTEL_EXPORTER_JAEGER_ENDPOINT": "http://localhost:14268/api/traces",
+       "OTEL_JAEGER_SERVICE_NAME": "plugin-name",
+       "PLUGIN_NAME": "plugin-name"
+}
+```
+#Connection Service
+This library supports convenient helpers to use connection service simply by creating an instance of it's package and call your desired API:
 ```go
 package main
 
-import cs "github.com/MyWeHub/plugin-sdk/connectionService"
+import (
+	"context"
+	"github.com/MyWeHub/plugin-sdk/connectionService"
+	"log"
+)
 
 func main() {
-	ncs, err := cs.NewConnectionService(ctx, t, &cs.Options{ExternalRequest: true})
+        ctx := context.Background()
+
+        // connection service
+	ncs, err := connectionService.New(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer ncs.Close()
 
-	// ctx must contain "token" metadata
-	connection, err := ncs.GetConnection(ctx, "id")
+	connection, err := ncs.GetConnection(ctx, "63464297-8f51-4094-96be-de25f9b44183")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,69 +149,49 @@ func main() {
 	}
 }
 ```
+1. Create an instance of the connection service
+   1.1 `connectionService.New()` accepts an optional`Options{}` struct in which allows you to declare if you are requesting through your local machine (external request) or not.
+2. Call your desired API with the proper parameters (note that the service connection requires the context you pass to include all the proper authentication and module name to fullfil your request).
+3. The response of the connection service API supports methods which you can use to convert the `ConnectionMessage` response of it to any supported connection type that you need.
 
-## Nats
-Every plugin uses Nats message broker in order to receive its configuration when in a published workflow. All useful codes can be used as below:
+#Testing
+In order to use the testing package to simplify the process of creating unit tests, please use the code below:
 
-```go
-package main
-
-import (
-	"github.com/MyWeHub/plugin-sdk/nats"
-	"log"
-)
-
-func main() {
-	n := nats.NewNats(t)
-	defer n.Close()
-	n.Listen(ctx)
-	if node, ok := n.Cache["input.NodeId"]; ok {
-		var config pbConf.Configuration
-		if err := node.DecodeConfig(&config); err != nil {
-			log.Fatalln(err)
-		}
-		
-		...
-	} else {
-		log.Fatalln("...")
-    }
-}
-```
-
-## Testing
-We mostly use the same unit test initiation for each plugin. The following code can be used to bootstrap your unit test writing:
+**server_test.go**
 
 ```go
 package main
 
 import (
 	"context"
-	"testing"
-	testingLib "github.com/MyWeHub/plugin-sdk/testing"
-	"github.com/MyWeHub/plugin-sdk/telemetry"
+	"fmt"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
+	testingLib "github.com/MyWeHub/plugin-sdk/testing"
+	"testing"
 )
 
-var client pb.PluginRunnerServiceClient
+var (
+	ctx = context.Background()
+	client pb.PluginRunnerServiceClient
+)
 
 func init() {
-	ctx := context.Background()
-
-	t := telemetry.NewTelemetry()
-	defer t.ShutdownTracer(ctx)
-	defer t.SyncLogger()
-
-	tt := testingLib.NewTesting(t, &serviceServer{})
-
-	client = tt.NewClient(ctx)
+	client = testingLib.New(ctx, newService()).NewClient(ctx)
 }
 
 func TestRunTestV2(t *testing.T) {
-	ctx := testingLib.AppendInterceptorTestToken(context.Background())
-
-	_, err := client.RunTestv2(ctx, &pb.InputTestRequestV2{})
+	res, err := c.RunTestv2(ctx, &pb.InputTestRequestV2{
+		Inputs:        nil,
+		Configuration: nil,
+		Action:        0,
+		NodeId:        nil,
+		Events:        nil,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	fmt.Println("RES")
+	fmt.Println(res)
 }
 ```
