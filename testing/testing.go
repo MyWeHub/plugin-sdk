@@ -2,15 +2,16 @@ package testing
 
 import (
 	"context"
+	wehublib "github.com/MyWeHub/plugin-sdk"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
-	"github.com/MyWeHub/plugin-sdk/nats"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/structpb"
 	"net"
-	"time"
 )
 
 var (
@@ -31,26 +32,27 @@ type testing struct {
 	client pb.PluginRunnerServiceClient
 }
 
-// func New(n *nats.Nats, is IService) *testing {
-func New(n *nats.Nats) *testing {
+type IService interface {
+	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*structpb.Struct, error)
+}
+
+func New(ctx context.Context, is IService) *testing {
+	t := wehublib.NewTelemetry()
+	defer t.ShutdownTracer(ctx)
+	defer t.SyncLogger()
+
+	logger = t.GetLogger()
+	tracer = t.GetTracer()
+
 	server := wehublib.NewServer()
 	server.SetNewGRPC()
-	server.RegisterServer(n, nil)
+	server.RegisterServer(nil, is)
 
 	go func() {
-		t := wehublib.NewTelemetry()
-		defer t.ShutdownTracer(context.Background())
-		defer t.SyncLogger()
-
-		logger = t.GetLogger()
-		tracer = t.GetTracer()
-
 		if err := server.ServeTest(lis); err != nil {
 			panic(err)
 		}
 	}()
-
-	time.Sleep(1 * time.Second)
 
 	return &testing{}
 }
@@ -77,7 +79,7 @@ var token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWt
 
 func AppendIncomingTestToken(ctx context.Context) context.Context {
 	md := metadata.New(map[string]string{
-		"authorization": "bearer" + token,
+		"authorization": "bearer " + token,
 	})
 
 	return metadata.NewOutgoingContext(ctx, md)

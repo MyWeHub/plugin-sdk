@@ -14,22 +14,16 @@ import (
 
 var client pb.PluginRunnerServiceClient
 
-/*func init() {
+func init() {
 	ctx := context.Background()
 
-	t := telemetry.NewTelemetry()
-	defer t.ShutdownTracer(ctx)
-	defer t.SyncLogger()
-
-	tt := testingLib.NewTesting(t, &serviceServer{})
-
-	client = tt.NewClient(ctx)
-}*/
+	client = testingLib.New(ctx, newService()).NewClient(ctx)
+}
 
 func TestTest(t *testing.T) {
-	ctx := testingLib.AppendInterceptorTestToken(context.Background())
+	ctx := testingLib.AppendIncomingTestToken(context.Background())
 
-	_, err := client.RunTest(ctx, &pb.InputTestRequest{})
+	_, err := client.RunTestv2(ctx, &pb.InputTestRequestV2{})
 	if err != nil {
 		t.Fatal(err)
 	}
