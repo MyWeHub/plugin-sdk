@@ -9,6 +9,7 @@ plugins:
      - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin-sdk/gen/pluginrunner
      - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
      - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
+     - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
    - name: go-grpc
      out: gen
      opt:
@@ -16,6 +17,7 @@ plugins:
      - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin-sdk/gen/pluginrunner
      - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
      - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
+     - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
 # - name: ts
 #   out: ui/src/proto
 #   opt: force_optimize_code_size

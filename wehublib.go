@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	pbEP "github.com/MyWeHub/plugin-sdk/gen/entrypointService"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
 	"github.com/MyWeHub/plugin-sdk/nats"
 	"github.com/MyWeHub/plugin-sdk/util"
@@ -37,7 +38,6 @@ import (
 )
 
 // TODO: write unit tests!
-// TODO: add README.md and documentation for godoc
 // TODO: grpc status pkg!
 // TODO:
 
@@ -96,6 +96,14 @@ func (s *server) RegisterServer(n *nats.Nats, is IService, ct proto.Message) {
 	}
 
 	pb.RegisterPluginRunnerServiceServer(s.server, &grpcServer{nats: n, service: is, configType: ct})
+}
+
+func (s *server) RegisterEntrypointServer(srv pbEP.EntrypointServiceServer) {
+	if s.server == nil {
+		panic(errors.New("grpc server must be initialized before setting service server"))
+	}
+
+	pbEP.RegisterEntrypointServiceServer(s.server, srv)
 }
 
 func (s *server) SetCustomGRPCPort(p string) {

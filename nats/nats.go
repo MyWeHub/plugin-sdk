@@ -26,13 +26,18 @@ func SetTelemetry(l *zap.Logger, t trace.Tracer) {
 	tracer = t
 }
 
+type INats interface {
+	UpdateCache(configs *[]NodeConfig, cache map[string]*NodeConfig)
+}
+
 type Nats struct {
 	conn       *nats.EncodedConn
 	Cache      map[string]*NodeConfig
 	ConfigType proto.Message
+	iNats      INats
 }
 
-func New(configType proto.Message) *Nats {
+func New(configType proto.Message, iNats ...INats) *Nats {
 	if configType == nil {
 		panic(errors.New("nats: ConfigType parameter is nil"))
 	}
@@ -50,17 +55,29 @@ func New(configType proto.Message) *Nats {
 		panic(err)
 	}
 
+	var tmp INats
+	if len(iNats) != 0 && iNats != nil {
+		tmp = iNats[0]
+	} else {
+		tmp = nil
+	}
+
 	return &Nats{
 		conn:       encodedConn,
 		Cache:      make(map[string]*NodeConfig),
 		ConfigType: configType,
+		iNats:      tmp,
 	}
 }
 
 func (n *Nats) updateCache(configs *[]NodeConfig) {
-	for _, nodeConfig := range *configs {
-		nc := nodeConfig
-		n.Cache[nodeConfig.ID] = &nc
+	if n.iNats != nil {
+		n.iNats.UpdateCache(configs, n.Cache)
+	} else {
+		for _, nodeConfig := range *configs {
+			nc := nodeConfig
+			n.Cache[nodeConfig.ID] = &nc
+		}
 	}
 }
 
@@ -135,16 +152,6 @@ type NodeConfig struct {
 	Configuration proto.Message
 	ClientID      string
 }
-
-/*
-func (s *NodeConfig) DecodeConfig(config proto.Message) error {
-	err := protojson.Unmarshal(s.Configuration, config)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}*/
 
 func (s *NodeConfigNats) decode(config proto.Message) (*NodeConfig, error) {
 	//newRef := reflect.New(reflect.TypeOf(configRef))

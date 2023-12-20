@@ -29,12 +29,6 @@ func TestTest(t *testing.T) {
 	}
 }
 
-type Structy struct {
-	One   string
-	Two   int
-	Three bool
-}
-
 func TestTMP(t *testing.T) {
 	s := &schema.Schema{
 		Id:           "ID",
@@ -44,16 +38,12 @@ func TestTMP(t *testing.T) {
 		ClientId:     "CLIENT_ID",
 		PartitionKey: "PARTITION_KEY",
 		ResourceType: "RESOURCE_TYPE",
-		/*One:   "SFDFDSFD",
-		Two:   1,
-		Three: true,*/
 	}
 
 	_, err := protojson.Marshal(s)
 	if err != nil {
 		t.Fatal(err)
 	}
-
 }
 
 func TestTMP2(t *testing.T) {

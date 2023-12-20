@@ -8,4 +8,5 @@ directories:
   - proto/common/pluginrunner
   - proto/common/schema
   - proto/common/serviceConnection
+  - proto/common/entrypointService
   - proto/common/vendor
