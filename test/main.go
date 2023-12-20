@@ -6,6 +6,7 @@ import (
 	wehublib "github.com/MyWeHub/plugin-sdk"
 	"github.com/MyWeHub/plugin-sdk/gen/schema"
 	"github.com/MyWeHub/plugin-sdk/nats"
+	goNats "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -23,9 +24,19 @@ func (s *service) Process(ctx context.Context, in *structpb.Struct, conf proto.M
 	return nil, nil
 }
 
-type natsUpdater struct{}
+type cacher struct{}
 
-func (nu *natsUpdater) UpdateCache(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
+func (c *cacher) Update(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
+	// Logic here ...
+}
+
+func (c *cacher) Remove(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
+	// Logic here ...
+}
+
+type listener struct{}
+
+func (l *listener) Listen(ctx context.Context, conn *goNats.EncodedConn) {
 	// Logic here ...
 }
 
@@ -38,9 +49,13 @@ func main() {
 	defer t.SyncLogger()
 
 	//nats
-	n := nats.New(&schema.Schema{}, &natsUpdater{})
+	n := nats.New(&schema.Schema{})
 	defer n.Close()
 	n.Listen(ctx)
+
+	n.SetCustomCache(&cacher{})
+	n.SetCustomListener(&listener{})
+
 	if node, ok := n.Cache["input.NodeId"]; ok {
 		fmt.Println(node.NodeType)
 		fmt.Println(node.ID)

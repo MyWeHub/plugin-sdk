@@ -26,18 +26,24 @@ func SetTelemetry(l *zap.Logger, t trace.Tracer) {
 	tracer = t
 }
 
-type INats interface {
-	UpdateCache(configs *[]NodeConfig, cache map[string]*NodeConfig)
+type Listener interface {
+	Listen(ctx context.Context, conn *nats.EncodedConn)
+}
+
+type ICache interface {
+	Update(configs *[]NodeConfig, cache map[string]*NodeConfig)
+	Remove(configs *[]NodeConfig, cache map[string]*NodeConfig)
 }
 
 type Nats struct {
 	conn       *nats.EncodedConn
 	Cache      map[string]*NodeConfig
 	ConfigType proto.Message
-	iNats      INats
+	iCache     ICache
+	listener   Listener
 }
 
-func New(configType proto.Message, iNats ...INats) *Nats {
+func New(configType proto.Message) *Nats {
 	if configType == nil {
 		panic(errors.New("nats: ConfigType parameter is nil"))
 	}
@@ -55,33 +61,45 @@ func New(configType proto.Message, iNats ...INats) *Nats {
 		panic(err)
 	}
 
-	var tmp INats
-	if len(iNats) != 0 && iNats != nil {
-		tmp = iNats[0]
-	} else {
-		tmp = nil
-	}
-
 	return &Nats{
 		conn:       encodedConn,
 		Cache:      make(map[string]*NodeConfig),
 		ConfigType: configType,
-		iNats:      tmp,
 	}
+}
+
+func (n *Nats) SetCustomCache(c ICache) {
+	n.iCache = c
+}
+
+func (n *Nats) SetCustomListener(l Listener) {
+	n.listener = l
 }
 
 func (n *Nats) updateCache(configs *[]NodeConfig) {
-	if n.iNats != nil {
-		n.iNats.UpdateCache(configs, n.Cache)
-	} else {
-		for _, nodeConfig := range *configs {
-			nc := nodeConfig
-			n.Cache[nodeConfig.ID] = &nc
-		}
+	if n.iCache != nil {
+		n.iCache.Update(configs, n.Cache)
+		return
+	}
+
+	for _, nodeConfig := range *configs {
+		nc := nodeConfig
+		n.Cache[nodeConfig.ID] = &nc
 	}
 }
 
-func (n *Nats) Listen(ctx context.Context) {
+func (n *Nats) removeCache(configs *[]NodeConfig) { // TODO: not calling this anywhere
+	if n.iCache != nil {
+		n.iCache.Remove(configs, n.Cache)
+	}
+}
+
+func (n *Nats) Listen(ctx context.Context) { // TODO: in previous files, Request() used EncodedConn but Subscribe() used natsConn [* not encoded] !
+	if n.listener != nil {
+		n.listener.Listen(ctx, n.conn)
+		return
+	}
+
 	pluginName := util.GetEnv("PLUGIN_NAME", false, "", true)
 
 	ctx, span := tracer.Start(ctx, "Request plugin configuration")

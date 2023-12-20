@@ -62,7 +62,7 @@ func main() {
 }
 ```
 
-You can also create a custom cache updater function and set it for nats:
+You can also assign a custom nats cache updater or listener:
 
 ```go
 package main
@@ -71,20 +71,35 @@ import (
    "context"
    "github.com/MyWeHub/plugin-sdk/nats"
    pbconf "workflowplugin/gen/configuration"
+   goNats "github.com/nats-io/nats.go"
 )
 
-type natsUpdater struct{}
+type cacher struct{}
 
-func (nu *natsUpdater) UpdateCache(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
-	// Logic here ...
+func (c *cacher) Update(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
+   // Logic here ...
 }
 
-func func main() {
+func (c *cacher) Remove(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
+   // Logic here ...
+}
+
+type listener struct{}
+
+func (l *listener) Listen(ctx context.Context, conn *goNats.EncodedConn) {
+   // Logic here ...
+}
+
+func main() {
     ctx := context.Background()
 
     //nats
-    n := nats.New(&confPB.Configuration{}, &natsUpdater{})
+    n := nats.New(&pbconf.Configuration{})
     defer n.Close()
+
+   n.SetCustomCache(&cacher{})
+   n.SetCustomListener(&listener{})
+	
     n.Listen(ctx)
 }
 ```
