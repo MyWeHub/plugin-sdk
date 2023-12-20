@@ -17,7 +17,7 @@ var client pb.PluginRunnerServiceClient
 func init() {
 	ctx := context.Background()
 
-	client = testingLib.New(ctx, newService()).NewClient(ctx)
+	client = testingLib.New(ctx, newService(), &schema.Schema{}).NewClient(ctx)
 }
 
 func TestTest(t *testing.T) {

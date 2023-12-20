@@ -214,3 +214,13 @@ func (cm *connectionMessage) ToPostgres() (*pbsc.PostgresConnection, error) {
 
 	return conn.PostgresConnection, nil
 }
+
+func (cm *connectionMessage) ToSlack() (*pbsc.SlackConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SlackConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SLACK))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_SLACK)
+	}
+
+	return conn.SlackConnection, nil
+}
