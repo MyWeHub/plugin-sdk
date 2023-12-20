@@ -16,7 +16,7 @@ https://github.com/ariakwehub/plugin_sdk
 #Getting Started
 Run the command below in your project directory to get the plugin SDK and add it to your project modules:
 ```bash
-go get -u github.com/MyWeHub/plugin-sdk
+go get -u github.com/MyWeHub/plugin-sdk@latest
 ``` 
 The code below will initialize a simple server for plugins.
 
@@ -46,7 +46,7 @@ func main() {
 	defer t.ShutdownTracer(ctx)
 	defer t.SyncLogger()
 
-        logger = t.GetLogger()
+	logger = t.GetLogger()
 	tracer = t.GetTracer()
 
 	//nats
@@ -59,6 +59,33 @@ func main() {
 	server.SetNewGRPC()
 	server.RegisterServer(n, newService(), &confPB.Configuration{})
 	server.Serve()
+}
+```
+
+You can also create a custom cache updater function and set it for nats:
+
+```go
+package main
+
+import (
+   "context"
+   "github.com/MyWeHub/plugin-sdk/nats"
+   pbconf "workflowplugin/gen/configuration"
+)
+
+type natsUpdater struct{}
+
+func (nu *natsUpdater) UpdateCache(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
+	// Logic here ...
+}
+
+func func main() {
+    ctx := context.Background()
+
+    //nats
+    n := nats.New(&confPB.Configuration{}, &natsUpdater{})
+    defer n.Close()
+    n.Listen(ctx)
 }
 ```
 

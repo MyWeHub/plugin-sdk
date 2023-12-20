@@ -23,6 +23,12 @@ func (s *service) Process(ctx context.Context, in *structpb.Struct, conf proto.M
 	return nil, nil
 }
 
+type natsUpdater struct{}
+
+func (nu *natsUpdater) UpdateCache(configs *[]nats.NodeConfig, cache map[string]*nats.NodeConfig) {
+	// Logic here ...
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -32,7 +38,7 @@ func main() {
 	defer t.SyncLogger()
 
 	//nats
-	n := nats.New(&schema.Schema{})
+	n := nats.New(&schema.Schema{}, &natsUpdater{})
 	defer n.Close()
 	n.Listen(ctx)
 	if node, ok := n.Cache["input.NodeId"]; ok {
