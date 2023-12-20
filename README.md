@@ -57,7 +57,7 @@ func main() {
 	// server
 	server := sdk.NewServer()
 	server.SetNewGRPC()
-	server.RegisterServer(n, newService())
+	server.RegisterServer(n, newService(), &confPB.Configuration{})
 	server.Serve()
 }
 ```
@@ -176,7 +176,7 @@ var (
 )
 
 func init() {
-	client = testingLib.New(ctx, newService()).NewClient(ctx)
+	client = testingLib.New(ctx, newService(), &confPB.Configuration{}).NewClient(ctx)
 }
 
 func TestRunTestV2(t *testing.T) {
