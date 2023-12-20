@@ -36,7 +36,7 @@ type IService interface {
 	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*structpb.Struct, error)
 }
 
-func New(ctx context.Context, is IService) *testing {
+func New(ctx context.Context, is IService, configType proto.Message) *testing {
 	t := wehublib.NewTelemetry()
 	defer t.ShutdownTracer(ctx)
 	defer t.SyncLogger()
@@ -46,7 +46,7 @@ func New(ctx context.Context, is IService) *testing {
 
 	server := wehublib.NewServer()
 	server.SetNewGRPC()
-	server.RegisterServer(nil, is)
+	server.RegisterServer(nil, is, configType)
 
 	go func() {
 		if err := server.ServeTest(lis); err != nil {

@@ -68,6 +68,6 @@ func main() {
 	//server.SetCustomJwtHandler()
 	//server.SetCustomRecoveryHandler()
 	server.SetNewGRPC()
-	server.RegisterServer(n, newService())
+	server.RegisterServer(n, newService(), &schema.Schema{})
 	server.Serve()
 }

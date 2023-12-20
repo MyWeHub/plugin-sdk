@@ -25,7 +25,7 @@ func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2
 		workflowData = *input.NodeId
 	}
 
-	conf, err := decodeConf(input.Configuration, s.nats.ConfigType)
+	conf, err := decodeConf(input.Configuration, s.configType)
 	if err != nil {
 		return nil, err
 	}

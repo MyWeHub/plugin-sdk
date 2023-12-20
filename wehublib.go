@@ -76,8 +76,9 @@ type IService interface {
 
 type grpcServer struct {
 	pb.UnimplementedPluginRunnerServiceServer
-	nats    *nats.Nats
-	service IService
+	nats       *nats.Nats
+	service    IService
+	configType proto.Message
 }
 
 func NewServer() *server {
@@ -89,12 +90,12 @@ func NewServer() *server {
 	}
 }
 
-func (s *server) RegisterServer(n *nats.Nats, is IService) {
+func (s *server) RegisterServer(n *nats.Nats, is IService, ct proto.Message) {
 	if s.server == nil {
 		panic(errors.New("grpc server must be initialized before setting service server"))
 	}
 
-	pb.RegisterPluginRunnerServiceServer(s.server, &grpcServer{nats: n, service: is})
+	pb.RegisterPluginRunnerServiceServer(s.server, &grpcServer{nats: n, service: is, configType: ct})
 }
 
 func (s *server) SetCustomGRPCPort(p string) {
