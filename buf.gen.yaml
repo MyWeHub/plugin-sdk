@@ -10,6 +10,8 @@ plugins:
      - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
      - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
      - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
+     - Mgraph/graph.proto=github.com/MyWeHub/plugin-sdk/gen/graph
+     - MtestRunner/testRunner.proto=github.com/MyWeHub/plugin-sdk/gen/testRunner
    - name: go-grpc
      out: gen
      opt:
@@ -18,6 +20,8 @@ plugins:
      - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
      - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
      - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
+     - Mgraph/graph.proto=github.com/MyWeHub/plugin-sdk/gen/graph
+     - MtestRunner/testRunner.proto=github.com/MyWeHub/plugin-sdk/gen/testRunner
 # - name: ts
 #   out: ui/src/proto
 #   opt: force_optimize_code_size

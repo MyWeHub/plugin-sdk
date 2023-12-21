@@ -9,4 +9,6 @@ directories:
   - proto/common/schema
   - proto/common/serviceConnection
   - proto/common/entrypointService
+  - proto/common/graph
+  - proto/common/testRunner
   - proto/common/vendor

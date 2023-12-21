@@ -109,8 +109,7 @@ func (n *Nats) Listen(ctx context.Context) { // TODO: in previous files, Request
 	span.SetAttributes(attribute.String("topic", req))
 
 	natsConfigs := make([]NodeConfigNats, 0)
-	err := n.conn.Request(req, "", &natsConfigs, 10*time.Second)
-	if err != nil {
+	if err := n.conn.Request(req, "", &natsConfigs, 10*time.Second); err != nil {
 		logger.Error("Request failed", zap.Error(err))
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
