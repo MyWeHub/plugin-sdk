@@ -62,7 +62,7 @@ func New(configType proto.Message) *Nats {
 	}
 }
 
-func (n *Nats) Listen(ctx context.Context, opts ...ListenerOptions) { // TODO: in previous files, Request() used EncodedConn but Subscribe() used natsConn [* not encoded] !
+func (n *Nats) Listen(ctx context.Context, opts ...*ListenerOptions) { // TODO: in previous files, Request() used EncodedConn but Subscribe() used natsConn [* not encoded] !
 	ctx, span := tracer.Start(ctx, "Request plugin configuration")
 	defer span.End()
 
