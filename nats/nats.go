@@ -26,21 +26,15 @@ func SetTelemetry(l *zap.Logger, t trace.Tracer) {
 	tracer = t
 }
 
-type Listener interface {
-	Listen(ctx context.Context, conn *nats.EncodedConn)
-}
-
-type ICache interface {
-	Update(configs *[]NodeConfig, cache map[string]*NodeConfig)
-	Remove(configs *[]NodeConfig, cache map[string]*NodeConfig)
-}
-
 type Nats struct {
 	conn       *nats.EncodedConn
 	Cache      map[string]*NodeConfig
 	ConfigType proto.Message
-	iCache     ICache
-	listener   Listener
+}
+
+type ListenerOptions struct {
+	updateFunc func(nc *NodeConfig)
+	removeFunc func(nc *NodeConfig)
 }
 
 func New(configType proto.Message) *Nats {
@@ -68,42 +62,25 @@ func New(configType proto.Message) *Nats {
 	}
 }
 
-func (n *Nats) SetCustomCache(c ICache) {
-	n.iCache = c
-}
+func (n *Nats) Listen(ctx context.Context, opts ...ListenerOptions) { // TODO: in previous files, Request() used EncodedConn but Subscribe() used natsConn [* not encoded] !
+	ctx, span := tracer.Start(ctx, "Request plugin configuration")
+	defer span.End()
 
-func (n *Nats) SetCustomListener(l Listener) {
-	n.listener = l
-}
+	updateFunc := func(nc *NodeConfig) {}
+	removeFunc := func(nc *NodeConfig) {}
 
-func (n *Nats) updateCache(configs *[]NodeConfig) {
-	if n.iCache != nil {
-		n.iCache.Update(configs, n.Cache)
-		return
-	}
-
-	for _, nodeConfig := range *configs {
-		nc := nodeConfig
-		n.Cache[nodeConfig.ID] = &nc
-	}
-}
-
-func (n *Nats) removeCache(configs *[]NodeConfig) { // TODO: not calling this anywhere
-	if n.iCache != nil {
-		n.iCache.Remove(configs, n.Cache)
-	}
-}
-
-func (n *Nats) Listen(ctx context.Context) { // TODO: in previous files, Request() used EncodedConn but Subscribe() used natsConn [* not encoded] !
-	if n.listener != nil {
-		n.listener.Listen(ctx, n.conn)
-		return
+	if opts != nil && len(opts) != 0 {
+		for _, opt := range opts {
+			if opt.updateFunc != nil {
+				updateFunc = opt.updateFunc
+			}
+			if opt.removeFunc != nil {
+				removeFunc = opt.removeFunc
+			}
+		}
 	}
 
 	pluginName := util.GetEnv("PLUGIN_NAME", false, "", true)
-
-	ctx, span := tracer.Start(ctx, "Request plugin configuration")
-	defer span.End()
 
 	req := fmt.Sprintf("requestPluginConfig.%s", pluginName)
 	span.SetAttributes(attribute.String("topic", req))
@@ -127,7 +104,7 @@ func (n *Nats) Listen(ctx context.Context) { // TODO: in previous files, Request
 	}
 	logger.Info("Received plugin config", zap.Any("configs", configs))
 
-	n.updateCache(&configs)
+	n.updateCache(&configs, updateFunc)
 
 	n.conn.Subscribe(fmt.Sprintf("refresh.%s.*", pluginName), func(m *nats.Msg) {
 		_, span := tracer.Start(ctx, "Received a config")
@@ -146,8 +123,53 @@ func (n *Nats) Listen(ctx context.Context) { // TODO: in previous files, Request
 		}
 		defer span.End()
 		logger.Info("Received a config", zap.Any("configs", configs))
-		n.updateCache(&configs)
+		n.updateCache(&configs, updateFunc)
 	})
+
+	n.conn.Subscribe(fmt.Sprintf("unpublishConfiguration.%s.*", pluginName), func(m *nats.Msg) {
+		ctx, span = tracer.Start(ctx, "Received unpublished event")
+		defer span.End()
+
+		if err := json.Unmarshal(m.Data, &natsConfigs); err != nil {
+			zap.Error(err)
+		}
+
+		configs := make([]NodeConfig, 0, len(natsConfigs))
+		for _, conf := range natsConfigs {
+			decodedConf, err := conf.decode(n.ConfigType)
+			if err == nil {
+				configs = append(configs, *decodedConf)
+			} else {
+				logger.Warn("decode nats config", zap.Error(err))
+			}
+		}
+
+		n.removeFromCache(&configs, removeFunc)
+		logger.Info("Received unpublished event", zap.Any("configs", configs))
+	})
+}
+
+func (n *Nats) updateCache(configs *[]NodeConfig, customFunc func(nc *NodeConfig)) {
+	for _, nodeConfig := range *configs {
+		nc := nodeConfig
+		n.Cache[nodeConfig.ID] = &nc
+
+		if customFunc != nil {
+			customFunc(&nc)
+		}
+	}
+}
+
+func (n *Nats) removeFromCache(configs *[]NodeConfig, customFunc func(nc *NodeConfig)) {
+	for _, nodeConfig := range *configs {
+		if _, found := n.Cache[nodeConfig.ID]; found {
+			if customFunc != nil {
+				customFunc(&nodeConfig)
+			}
+
+			delete(n.Cache, nodeConfig.ID)
+		}
+	}
 }
 
 func (n *Nats) Close() {
