@@ -12,6 +12,8 @@ plugins:
      - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
      - Mgraph/graph.proto=github.com/MyWeHub/plugin-sdk/gen/graph
      - MtestRunner/testRunner.proto=github.com/MyWeHub/plugin-sdk/gen/testRunner
+     - MjwtProvider/jwtProvider.proto=github.com/MyWeHub/plugin-sdk/gen/jwtProvider
+     - Mtransformation/transformation.proto=github.com/MyWeHub/plugin-sdk/gen/transformation
    - name: go-grpc
      out: gen
      opt:
@@ -22,6 +24,8 @@ plugins:
      - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
      - Mgraph/graph.proto=github.com/MyWeHub/plugin-sdk/gen/graph
      - MtestRunner/testRunner.proto=github.com/MyWeHub/plugin-sdk/gen/testRunner
+     - MjwtProvider/jwtProvider.proto=github.com/MyWeHub/plugin-sdk/gen/jwtProvider
+     - Mtransformation/transformation.proto=github.com/MyWeHub/plugin-sdk/gen/transformation
 # - name: ts
 #   out: ui/src/proto
 #   opt: force_optimize_code_size

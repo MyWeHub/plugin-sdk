@@ -11,4 +11,6 @@ directories:
   - proto/common/entrypointService
   - proto/common/graph
   - proto/common/testRunner
+  - proto/common/jwtProvider
+  - proto/common/transformation
   - proto/common/vendor
