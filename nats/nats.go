@@ -33,8 +33,8 @@ type Nats struct {
 }
 
 type ListenerOptions struct {
-	updateFunc func(nc *NodeConfig)
-	removeFunc func(nc *NodeConfig)
+	UpdateFunc func(nc *NodeConfig)
+	RemoveFunc func(nc *NodeConfig)
 }
 
 func New(configType proto.Message) *Nats {
@@ -71,11 +71,11 @@ func (n *Nats) Listen(ctx context.Context, opts ...*ListenerOptions) { // TODO: 
 
 	if opts != nil && len(opts) != 0 {
 		for _, opt := range opts {
-			if opt.updateFunc != nil {
-				updateFunc = opt.updateFunc
+			if opt.UpdateFunc != nil {
+				updateFunc = opt.UpdateFunc
 			}
-			if opt.removeFunc != nil {
-				removeFunc = opt.removeFunc
+			if opt.RemoveFunc != nil {
+				removeFunc = opt.RemoveFunc
 			}
 		}
 	}
