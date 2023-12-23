@@ -3,3 +3,4 @@ backend/__debug_bin
 backend/__debug_bin.exe
 backend/go.mod
 docker-compose.yaml
+.DS_Store
