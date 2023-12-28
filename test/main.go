@@ -53,9 +53,6 @@ func main() {
 	defer n.Close()
 	n.Listen(ctx)
 
-	n.SetCustomCache(&cacher{})
-	n.SetCustomListener(&listener{})
-
 	if node, ok := n.Cache["input.NodeId"]; ok {
 		fmt.Println(node.NodeType)
 		fmt.Println(node.ID)
