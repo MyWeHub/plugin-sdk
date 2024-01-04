@@ -8,6 +8,7 @@ import (
 	"github.com/MyWeHub/plugin-sdk/util"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -27,15 +28,17 @@ func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2
 
 	conf, err := decodeConf(input.Configuration, s.configType)
 	if err != nil {
+		logger.Error("decodeConf", zap.Error(err))
 		return nil, err
 	}
 
-	vpb, err := s.service.Process(ctx, input.Inputs, conf, input.Action, workflowData) // TODO: check NodeID
+	out, err := s.service.Process(ctx, input.Inputs, conf, input.Action, workflowData) // TODO: check NodeID
 	if err != nil {
+		logger.Error("Process", zap.Error(err))
 		return nil, err
 	}
 
-	return &pb.InputTestResponseV2{Outputs: vpb}, nil
+	return out, nil
 }
 
 func (s *grpcServer) RunV2(ctx context.Context, input *pb.InputRequestV2) (*pb.InputTestResponseV2, error) {
@@ -49,12 +52,13 @@ func (s *grpcServer) RunV2(ctx context.Context, input *pb.InputRequestV2) (*pb.I
 		span.RecordError(err)
 		return nil, status.Convert(err).Err()
 	} else {
-		vpb, err := s.service.Process(ctx, input.Inputs, node.Configuration, input.Action, input.NodeId)
+		out, err := s.service.Process(ctx, input.Inputs, node.Configuration, input.Action, input.NodeId)
 		if err != nil {
+			logger.Error("Process", zap.Error(err))
 			return nil, err
 		}
 
-		return &pb.InputTestResponseV2{Outputs: vpb}, nil
+		return out, nil
 	}
 }
 

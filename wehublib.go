@@ -71,7 +71,7 @@ type GRPCOptions struct {
 }
 
 type IService interface {
-	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*structpb.Struct, error)
+	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*pb.InputTestResponseV2, error)
 }
 
 type grpcServer struct {
