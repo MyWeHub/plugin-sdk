@@ -18,7 +18,7 @@ var pluginName = util.GetEnv("PLUGIN_NAME", false, "", true)
 
 func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2) (*pb.InputTestResponseV2, error) {
 	if input.Inputs == nil {
-		return nil, errors.New("input is empty")
+		return nil, status.Convert(errors.New("input is empty")).Err()
 	}
 
 	workflowData := ""
@@ -29,13 +29,13 @@ func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2
 	conf, err := decodeConf(input.Configuration, s.configType)
 	if err != nil {
 		logger.Error("decodeConf", zap.Error(err))
-		return nil, err
+		return nil, status.Convert(err).Err()
 	}
 
 	out, err := s.service.Process(ctx, input.Inputs, conf, input.Action, workflowData) // TODO: check NodeID
 	if err != nil {
 		logger.Error("Process", zap.Error(err))
-		return nil, err
+		return nil, status.Convert(err).Err()
 	}
 
 	return out, nil
@@ -55,7 +55,7 @@ func (s *grpcServer) RunV2(ctx context.Context, input *pb.InputRequestV2) (*pb.I
 		out, err := s.service.Process(ctx, input.Inputs, node.Configuration, input.Action, input.NodeId)
 		if err != nil {
 			logger.Error("Process", zap.Error(err))
-			return nil, err
+			return nil, status.Convert(err).Err()
 		}
 
 		return out, nil
