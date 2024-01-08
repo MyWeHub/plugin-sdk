@@ -14,9 +14,17 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+const (
+	RunType   = "RunType"
+	RunV2     = "RunV2"
+	RunTestV2 = "RunTestV2"
+)
+
 var pluginName = util.GetEnv("PLUGIN_NAME", false, "", true)
 
 func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2) (*pb.InputTestResponseV2, error) {
+	ctx = context.WithValue(ctx, RunType, RunTestV2)
+
 	if input.Inputs == nil {
 		return nil, status.Convert(errors.New("input is empty")).Err()
 	}
@@ -52,6 +60,8 @@ func (s *grpcServer) RunV2(ctx context.Context, input *pb.InputRequestV2) (*pb.I
 		span.RecordError(err)
 		return nil, status.Convert(err).Err()
 	} else {
+		ctx = context.WithValue(ctx, RunType, RunV2)
+
 		out, err := s.service.Process(ctx, input.Inputs, node.Configuration, input.Action, input.NodeId)
 		if err != nil {
 			logger.Error("Process", zap.Error(err))
