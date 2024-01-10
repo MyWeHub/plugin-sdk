@@ -106,6 +106,14 @@ func (s *server) RegisterEntrypointServer(srv pbEP.EntrypointServiceServer) {
 	pbEP.RegisterEntrypointServiceServer(s.server, srv)
 }
 
+func (s *server) GetGRPCServer() (*grpc.Server, error) {
+	if s.server != nil {
+		return nil, errors.New("server is nil, please call this method after 'SetNewGRPC' method is called")
+	}
+
+	return s.server, nil
+}
+
 func (s *server) SetCustomGRPCPort(p string) {
 	s.grpcPort = p
 }
