@@ -107,7 +107,7 @@ func (s *server) RegisterEntrypointServer(srv pbEP.EntrypointServiceServer) {
 }
 
 func (s *server) GetGRPCServer() (*grpc.Server, error) {
-	if s.server != nil {
+	if s.server == nil {
 		return nil, errors.New("server is nil, please call this method after 'SetNewGRPC' method is called")
 	}
 
