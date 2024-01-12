@@ -39,6 +39,8 @@ import (
 
 // TODO: write unit tests!
 // TODO: grpc status pkg!
+// TODO: change package name from 'wehublib' to 'pluginSDK'
+// TODO: update documentation
 // TODO:
 
 var (

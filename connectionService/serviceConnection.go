@@ -215,6 +215,26 @@ func (cm *connectionMessage) ToPostgres() (*pbsc.PostgresConnection, error) {
 	return conn.PostgresConnection, nil
 }
 
+func (cm *connectionMessage) ToCosmosdbTable() (*pbsc.CosmosDBTableConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_CosmosdbTableConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_COSMOSDB_TABLE))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_COSMOSDB_TABLE)
+	}
+
+	return conn.CosmosdbTableConnection, nil
+}
+
+func (cm *connectionMessage) ToCosmosdbNoSQL() (*pbsc.CosmosDBNoSQLConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_CosmosdbNoSQLConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_COSMOSDB_NOSQL))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_COSMOSDB_NOSQL)
+	}
+
+	return conn.CosmosdbNoSQLConnection, nil
+}
+
 func (cm *connectionMessage) ToSlack() (*pbsc.SlackConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SlackConnection)
 	if !ok {
