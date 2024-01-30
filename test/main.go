@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	wehublib "github.com/MyWeHub/plugin-sdk"
+	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
 	"github.com/MyWeHub/plugin-sdk/gen/schema"
 	"github.com/MyWeHub/plugin-sdk/nats"
 	goNats "github.com/nats-io/nats.go"
@@ -20,7 +21,7 @@ func newService() *service {
 	return &service{}
 }
 
-func (s *service) Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*structpb.Struct, error) {
+func (s *service) Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*pb.InputTestResponseV2, error) {
 	return nil, nil
 }
 

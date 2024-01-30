@@ -72,14 +72,14 @@ type GRPCOptions struct {
 	MaxSendSize           int
 }
 
-type IService interface {
+type IProcess interface {
 	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*pb.InputTestResponseV2, error)
 }
 
 type grpcServer struct {
 	pb.UnimplementedPluginRunnerServiceServer
 	nats       *nats.Nats
-	service    IService
+	service    IProcess
 	configType proto.Message
 }
 
@@ -92,7 +92,7 @@ func NewServer() *server {
 	}
 }
 
-func (s *server) RegisterServer(n *nats.Nats, is IService, ct proto.Message) {
+func (s *server) RegisterServer(n *nats.Nats, is IProcess, ct proto.Message) {
 	if s.server == nil {
 		panic(errors.New("grpc server must be initialized before setting service server"))
 	}

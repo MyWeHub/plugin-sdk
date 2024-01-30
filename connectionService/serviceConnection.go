@@ -73,6 +73,40 @@ func (cs *ConnectionService) GetConnection(ctx context.Context, id string) (*con
 		return nil, errors.New("service-connection client connection is empty")
 	}
 
+	var err error
+	ctx, err = configureCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cs.client.Get(ctx, &pbsc.IdMessage{Id: id})
+	if err != nil {
+		return nil, err
+	}
+
+	return &connectionMessage{message: res}, nil
+}
+
+func (cs *ConnectionService) GetConnectionWithJWT(ctx context.Context, id string) (*connectionMessage, error) {
+	if cs.client == nil {
+		return nil, errors.New("service-connection client connection is empty")
+	}
+
+	var err error
+	ctx, err = configureCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cs.client.GetWithJWT(ctx, &pbsc.IdMessage{Id: id})
+	if err != nil {
+		return nil, err
+	}
+
+	return &connectionMessage{message: res}, nil
+}
+
+func configureCtx(ctx context.Context) (context.Context, error) {
 	jwt, ok := ctx.Value("token").(string)
 	if !ok {
 		logger.Error("service-connection: token not found in context")
@@ -85,14 +119,7 @@ func (cs *ConnectionService) GetConnection(ctx context.Context, id string) (*con
 		//"authorization": "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE2NTYwNjUwODcsIm5iZiI6MTY1NjA2MTQ4NywidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly93ZWNvbm5lY3RodWIuYjJjbG9naW4uY29tLzZjOTdhZDE1LThkODYtNDg2My1hMWI0LTZhODU1ODE1MDUyZC92Mi4wLyIsInN1YiI6ImE5MjUwZTQ5LTgxMjQtNDViZC1hOTZkLWRhMzM5OTkxMmU2NCIsImF1ZCI6Ijc5MzkzMmUyLTlkNjctNDIwYy04NjFiLWEyNjZjYTc2YmIzYSIsImlhdCI6MTY1NjA2MTQ4NywiYXV0aF90aW1lIjoxNjU2MDYxNDg2LCJvaWQiOiJhOTI1MGU0OS04MTI0LTQ1YmQtYTk2ZC1kYTMzOTk5MTJlNjQiLCJuYW1lIjoiUGF0Y2h3b3JrIFRlc3RjbGllbnQiLCJnaXZlbl9uYW1lIjoiUGF0Y2h3b3JrIiwiZmFtaWx5X25hbWUiOiJUZXN0Y2xpZW50IiwiZXh0ZW5zaW9uX2NsaWVudGlkIjoiNjI1NTFjMDFkNDVlOGE0NDk0MDY3M2YyIiwiZXh0ZW5zaW9uX3dvcmthdG9jbGllbnRpZCI6IjYxMTM2MSIsImV4dGVuc2lvbl9pc0FkbWluIjp0cnVlLCJlbWFpbHMiOlsicGF0Y2h3b3JrY2xpZW50QHdlY29ubmVjdGh1Yi5jb20iXSwidGZwIjoiQjJDXzFfU2lnblVwU2lnbkluIiwiYXRfaGFzaCI6IjVNZmpMUWxLZnNndEdSYkllX2xFY0EifQ.gdMzwcftq6IsBiMAutwidPX2T2FyGGH2SPYYbhIABRdJFq87N7V8x15t-_almK9kL2K0E9yZDikgtfsaxIPaxwWBh-djk3LrBWvdf54bJMVb0PRa6pzfHmsyb2R9EHVpb6ty1-IzgY7DpE7YC7wbu2YqnswMT4UomygE6adN89bo_O4DJFImItvErnWP4jLOSyplhhb4zlE3OuSV5VV34UMpMzYJhhnTE3E0-bl_9zsNsGtLteo7CjB0cMf1W8NiRotKkZwhxq8uEXQxFVuthl-qPWDq70yFBmgQv5ZKJbydP4tkbEHQNtXls9zViuqXiSe54YCm8yVxczjc5EQKQA",
 	})
 
-	ctx = metadata.NewOutgoingContext(ctx, md)
-
-	res, err := cs.client.Get(ctx, &pbsc.IdMessage{Id: id})
-	if err != nil {
-		return nil, err
-	}
-
-	return &connectionMessage{message: res}, nil
+	return metadata.NewOutgoingContext(ctx, md), nil
 }
 
 func (cm *connectionMessage) ToSFTP() (*pbsc.SFTPConnection, error) {
@@ -243,4 +270,14 @@ func (cm *connectionMessage) ToSlack() (*pbsc.SlackConnection, error) {
 	}
 
 	return conn.SlackConnection, nil
+}
+
+func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_TCP_IP))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_TCP_IP)
+	}
+
+	return conn.TcpIp_Connection, nil
 }
