@@ -49,7 +49,7 @@ var (
 )
 
 type server struct {
-	server       *grpc.Server
+	Server       *grpc.Server
 	grpcPort     string
 	httpPort     string
 	jwtAuthFunc  func(ctx context.Context) (context.Context, error)
@@ -93,27 +93,27 @@ func NewServer() *server {
 }
 
 func (s *server) RegisterServer(n *nats.Nats, is IProcess, ct proto.Message) {
-	if s.server == nil {
+	if s.Server == nil {
 		panic(errors.New("grpc server must be initialized before setting service server"))
 	}
 
-	pb.RegisterPluginRunnerServiceServer(s.server, &grpcServer{nats: n, service: is, configType: ct})
+	pb.RegisterPluginRunnerServiceServer(s.Server, &grpcServer{nats: n, service: is, configType: ct})
 }
 
 func (s *server) RegisterEntrypointServer(srv pbEP.EntrypointServiceServer) {
-	if s.server == nil {
+	if s.Server == nil {
 		panic(errors.New("grpc server must be initialized before setting service server"))
 	}
 
-	pbEP.RegisterEntrypointServiceServer(s.server, srv)
+	pbEP.RegisterEntrypointServiceServer(s.Server, srv)
 }
 
 func (s *server) GetGRPCServer() (*grpc.Server, error) {
-	if s.server == nil {
+	if s.Server == nil {
 		return nil, errors.New("server is nil, please call this method after 'SetNewGRPC' method is called")
 	}
 
-	return s.server, nil
+	return s.Server, nil
 }
 
 func (s *server) SetCustomGRPCPort(p string) {
@@ -186,7 +186,7 @@ func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 		serverOpts = append(serverOpts, grpc.MaxRecvMsgSize(x.MaxReceiveSize))
 	}
 
-	s.server = grpc.NewServer(serverOpts...)
+	s.Server = grpc.NewServer(serverOpts...)
 
 	return s
 }
@@ -219,12 +219,12 @@ func (s *server) setDefaultGRPC() *server {
 			grpcRecovery.UnaryServerInterceptor(),
 			grpcRecovery.UnaryServerInterceptor(recoveryOpts...)))
 
-	s.server = grpc.NewServer(streamInterceptor, unaryInterceptor)
+	s.Server = grpc.NewServer(streamInterceptor, unaryInterceptor)
 	return s
 }
 
 func (s *server) Serve(opts ...*ServerOptions) {
-	if s.server == nil {
+	if s.Server == nil {
 		panic(errors.New("server not initialized"))
 	}
 
@@ -270,13 +270,13 @@ func (s *server) Serve(opts ...*ServerOptions) {
 
 			// We received an interrupt signal, shut down.
 			logger.Info("GRPC server gracefully shutdown")
-			s.server.GracefulStop()
+			s.Server.GracefulStop()
 			close(idleConnsClosed)
 		}()
 
 		logger.Info("GRPC server started", zap.String("port", s.grpcPort))
 		go func() {
-			if err := s.server.Serve(lis); err != nil {
+			if err := s.Server.Serve(lis); err != nil {
 				panic(err)
 			}
 		}()
@@ -285,14 +285,14 @@ func (s *server) Serve(opts ...*ServerOptions) {
 
 	} else {
 		logger.Info("GRPC server started", zap.String("port", s.grpcPort))
-		if err = s.server.Serve(lis); err != nil {
+		if err = s.Server.Serve(lis); err != nil {
 			panic(err)
 		}
 	}
 }
 
 func (s *server) ServeTest(lis net.Listener) error {
-	return s.server.Serve(lis)
+	return s.Server.Serve(lis)
 }
 
 func (s *server) serveHTTP() {
