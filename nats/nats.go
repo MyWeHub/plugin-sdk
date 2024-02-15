@@ -202,6 +202,11 @@ func (s *NodeConfigNats) decode(config proto.Message) (*NodeConfig, error) {
 		return nil, err
 	}
 
+	// recover WorkflowID if it does not exist
+	if s.WorkflowId == "" && s.Id != "" && len(s.Id) == 73 {
+		s.WorkflowId = s.Id[:36]
+	}
+
 	return &NodeConfig{
 		NodeType:      s.NodeType,
 		ID:            s.Id,
