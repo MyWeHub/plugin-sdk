@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ConnectionService_Create_FullMethodName     = "/serviceConnection.ConnectionService/Create"
-	ConnectionService_Get_FullMethodName        = "/serviceConnection.ConnectionService/Get"
-	ConnectionService_Delete_FullMethodName     = "/serviceConnection.ConnectionService/Delete"
-	ConnectionService_List_FullMethodName       = "/serviceConnection.ConnectionService/List"
-	ConnectionService_Update_FullMethodName     = "/serviceConnection.ConnectionService/Update"
-	ConnectionService_GetWithJWT_FullMethodName = "/serviceConnection.ConnectionService/GetWithJWT"
+	ConnectionService_Create_FullMethodName               = "/serviceConnection.ConnectionService/Create"
+	ConnectionService_Get_FullMethodName                  = "/serviceConnection.ConnectionService/Get"
+	ConnectionService_GetConnectionsIdList_FullMethodName = "/serviceConnection.ConnectionService/GetConnectionsIdList"
+	ConnectionService_Delete_FullMethodName               = "/serviceConnection.ConnectionService/Delete"
+	ConnectionService_List_FullMethodName                 = "/serviceConnection.ConnectionService/List"
+	ConnectionService_Update_FullMethodName               = "/serviceConnection.ConnectionService/Update"
+	ConnectionService_GetWithJWT_FullMethodName           = "/serviceConnection.ConnectionService/GetWithJWT"
 )
 
 // ConnectionServiceClient is the client API for ConnectionService service.
@@ -33,6 +34,7 @@ const (
 type ConnectionServiceClient interface {
 	Create(ctx context.Context, in *ConnectionsMessage, opts ...grpc.CallOption) (*ConnectionsMessage, error)
 	Get(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*ConnectionsMessage, error)
+	GetConnectionsIdList(ctx context.Context, in *IdsMessage, opts ...grpc.CallOption) (*IdsMessage, error)
 	Delete(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*IdMessage, error)
 	List(ctx context.Context, in *ListConnectionRequest, opts ...grpc.CallOption) (*ListConnectionResponse, error)
 	Update(ctx context.Context, in *ConnectionsMessage, opts ...grpc.CallOption) (*ConnectionsMessage, error)
@@ -59,6 +61,15 @@ func (c *connectionServiceClient) Create(ctx context.Context, in *ConnectionsMes
 func (c *connectionServiceClient) Get(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*ConnectionsMessage, error) {
 	out := new(ConnectionsMessage)
 	err := c.cc.Invoke(ctx, ConnectionService_Get_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) GetConnectionsIdList(ctx context.Context, in *IdsMessage, opts ...grpc.CallOption) (*IdsMessage, error) {
+	out := new(IdsMessage)
+	err := c.cc.Invoke(ctx, ConnectionService_GetConnectionsIdList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +118,7 @@ func (c *connectionServiceClient) GetWithJWT(ctx context.Context, in *IdMessage,
 type ConnectionServiceServer interface {
 	Create(context.Context, *ConnectionsMessage) (*ConnectionsMessage, error)
 	Get(context.Context, *IdMessage) (*ConnectionsMessage, error)
+	GetConnectionsIdList(context.Context, *IdsMessage) (*IdsMessage, error)
 	Delete(context.Context, *IdMessage) (*IdMessage, error)
 	List(context.Context, *ListConnectionRequest) (*ListConnectionResponse, error)
 	Update(context.Context, *ConnectionsMessage) (*ConnectionsMessage, error)
@@ -123,6 +135,9 @@ func (UnimplementedConnectionServiceServer) Create(context.Context, *Connections
 }
 func (UnimplementedConnectionServiceServer) Get(context.Context, *IdMessage) (*ConnectionsMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedConnectionServiceServer) GetConnectionsIdList(context.Context, *IdsMessage) (*IdsMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConnectionsIdList not implemented")
 }
 func (UnimplementedConnectionServiceServer) Delete(context.Context, *IdMessage) (*IdMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
@@ -181,6 +196,24 @@ func _ConnectionService_Get_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConnectionServiceServer).Get(ctx, req.(*IdMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_GetConnectionsIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdsMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).GetConnectionsIdList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_GetConnectionsIdList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).GetConnectionsIdList(ctx, req.(*IdsMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -271,6 +304,10 @@ var ConnectionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _ConnectionService_Get_Handler,
+		},
+		{
+			MethodName: "GetConnectionsIdList",
+			Handler:    _ConnectionService_GetConnectionsIdList_Handler,
 		},
 		{
 			MethodName: "Delete",

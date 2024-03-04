@@ -31,6 +31,7 @@ const (
 	SchemaService_GetVersion_FullMethodName              = "/schema.SchemaService/GetVersion"
 	SchemaService_GetSchemaWithVersions_FullMethodName   = "/schema.SchemaService/GetSchemaWithVersions"
 	SchemaService_GetSchemaWithVersion_FullMethodName    = "/schema.SchemaService/GetSchemaWithVersion"
+	SchemaService_GetVersionIdList_FullMethodName        = "/schema.SchemaService/GetVersionIdList"
 	SchemaService_RemoveSchema_FullMethodName            = "/schema.SchemaService/RemoveSchema"
 	SchemaService_RemoveSchemaVersion_FullMethodName     = "/schema.SchemaService/RemoveSchemaVersion"
 	SchemaService_CloneSchema_FullMethodName             = "/schema.SchemaService/CloneSchema"
@@ -62,6 +63,7 @@ type SchemaServiceClient interface {
 	GetVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaVersion, error)
 	GetSchemaWithVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaWithVersions, error)
 	GetSchemaWithVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaWithVersion, error)
+	GetVersionIdList(ctx context.Context, in *IdsRequest, opts ...grpc.CallOption) (*IdsRequest, error)
 	// REMOVE
 	RemoveSchema(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error)
 	RemoveSchemaVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error)
@@ -194,6 +196,15 @@ func (c *schemaServiceClient) GetSchemaWithVersion(ctx context.Context, in *IdRe
 	return out, nil
 }
 
+func (c *schemaServiceClient) GetVersionIdList(ctx context.Context, in *IdsRequest, opts ...grpc.CallOption) (*IdsRequest, error) {
+	out := new(IdsRequest)
+	err := c.cc.Invoke(ctx, SchemaService_GetVersionIdList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *schemaServiceClient) RemoveSchema(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
 	err := c.cc.Invoke(ctx, SchemaService_RemoveSchema_FullMethodName, in, out, opts...)
@@ -303,6 +314,7 @@ type SchemaServiceServer interface {
 	GetVersion(context.Context, *IdRequest) (*SchemaVersion, error)
 	GetSchemaWithVersions(context.Context, *IdRequest) (*SchemaWithVersions, error)
 	GetSchemaWithVersion(context.Context, *IdRequest) (*SchemaWithVersion, error)
+	GetVersionIdList(context.Context, *IdsRequest) (*IdsRequest, error)
 	// REMOVE
 	RemoveSchema(context.Context, *IdRequest) (*Empty, error)
 	RemoveSchemaVersion(context.Context, *IdRequest) (*Empty, error)
@@ -359,6 +371,9 @@ func (UnimplementedSchemaServiceServer) GetSchemaWithVersions(context.Context, *
 }
 func (UnimplementedSchemaServiceServer) GetSchemaWithVersion(context.Context, *IdRequest) (*SchemaWithVersion, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSchemaWithVersion not implemented")
+}
+func (UnimplementedSchemaServiceServer) GetVersionIdList(context.Context, *IdsRequest) (*IdsRequest, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVersionIdList not implemented")
 }
 func (UnimplementedSchemaServiceServer) RemoveSchema(context.Context, *IdRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveSchema not implemented")
@@ -619,6 +634,24 @@ func _SchemaService_GetSchemaWithVersion_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SchemaService_GetVersionIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SchemaServiceServer).GetVersionIdList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SchemaService_GetVersionIdList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SchemaServiceServer).GetVersionIdList(ctx, req.(*IdsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SchemaService_RemoveSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdRequest)
 	if err := dec(in); err != nil {
@@ -853,6 +886,10 @@ var SchemaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSchemaWithVersion",
 			Handler:    _SchemaService_GetSchemaWithVersion_Handler,
+		},
+		{
+			MethodName: "GetVersionIdList",
+			Handler:    _SchemaService_GetVersionIdList_Handler,
 		},
 		{
 			MethodName: "RemoveSchema",
