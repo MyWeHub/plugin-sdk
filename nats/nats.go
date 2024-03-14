@@ -196,8 +196,8 @@ func (s *NodeConfigNats) decode(config proto.Message) (*NodeConfig, error) {
 	//newRef := reflect.New(reflect.TypeOf(configRef))
 	//newConf := newRef.Interface()
 
-	//err := protojson.Unmarshal(s.configuration, &newConf)
-	err := protojson.Unmarshal(s.Configuration, config)
+	clonedMessage := proto.Clone(config)
+	err := protojson.Unmarshal(s.Configuration, clonedMessage)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func (s *NodeConfigNats) decode(config proto.Message) (*NodeConfig, error) {
 		NodeType:      s.NodeType,
 		ID:            s.Id,
 		WorkflowID:    s.WorkflowId,
-		Configuration: config,
+		Configuration: clonedMessage,
 		ClientID:      s.ClientId,
 	}, nil
 }

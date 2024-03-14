@@ -2,6 +2,8 @@ package main2
 
 import (
 	"context"
+	"fmt"
+	"github.com/MyWeHub/plugin-sdk/connectionService"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
 	"github.com/MyWeHub/plugin-sdk/gen/schema"
 	testingLib "github.com/MyWeHub/plugin-sdk/testing"
@@ -18,6 +20,24 @@ func init() {
 	ctx := context.Background()
 
 	client = testingLib.New(ctx, newService(), &schema.Schema{}).NewClient(ctx)
+}
+
+func TestCS(t *testing.T) {
+	ctx := context.Background()
+
+	c, err := connectionService.New(ctx, &connectionService.Options{ExternalRequest: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer c.Close()
+
+	connection, err := c.GetConnection(testingLib.AppendInterceptorTestToken(ctx), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(connection)
 }
 
 func TestTest(t *testing.T) {
