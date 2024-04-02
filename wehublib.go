@@ -29,7 +29,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -331,14 +330,16 @@ var (
 		if clientID, ok := claims["extension_clientid"]; ok {
 			oid, err := primitive.ObjectIDFromHex(clientID.(string))
 			if err != nil {
-				log.Println("convert string clientID to ObjectID:", err)
+				return nil, status.Errorf(codes.Unauthenticated, "convert string clientID to ObjectID: %s", err)
+				//log.Println("convert string clientID to ObjectID:", err)
 			}
 			poid := pmongo.NewObjectId(oid)
 
 			grpcTags.Extract(ctx).Set("auth.clientId", clientID)
 			ctx = context.WithValue(ctx, "clientId", poid)
 		} else {
-			ctx = context.WithValue(ctx, "clientId", &pmongo.ObjectId{})
+			return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: no ClientID found")
+			//ctx = context.WithValue(ctx, "clientId", &pmongo.ObjectId{})
 		}
 
 		if isAdmin, ok := claims["extension_isAdmin"]; ok {

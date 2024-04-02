@@ -32,6 +32,8 @@ const (
 	SchemaService_GetSchemaWithVersions_FullMethodName   = "/schema.SchemaService/GetSchemaWithVersions"
 	SchemaService_GetSchemaWithVersion_FullMethodName    = "/schema.SchemaService/GetSchemaWithVersion"
 	SchemaService_GetVersionIdList_FullMethodName        = "/schema.SchemaService/GetVersionIdList"
+	SchemaService_GetSchemaByNameAndID_FullMethodName    = "/schema.SchemaService/GetSchemaByNameAndID"
+	SchemaService_GetVersionByNameAndID_FullMethodName   = "/schema.SchemaService/GetVersionByNameAndID"
 	SchemaService_RemoveSchema_FullMethodName            = "/schema.SchemaService/RemoveSchema"
 	SchemaService_RemoveSchemaVersion_FullMethodName     = "/schema.SchemaService/RemoveSchemaVersion"
 	SchemaService_CloneSchema_FullMethodName             = "/schema.SchemaService/CloneSchema"
@@ -64,6 +66,8 @@ type SchemaServiceClient interface {
 	GetSchemaWithVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaWithVersions, error)
 	GetSchemaWithVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaWithVersion, error)
 	GetVersionIdList(ctx context.Context, in *IdsRequest, opts ...grpc.CallOption) (*IdsRequest, error)
+	GetSchemaByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*Schema, error)
+	GetVersionByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*SchemaVersion, error)
 	// REMOVE
 	RemoveSchema(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error)
 	RemoveSchemaVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error)
@@ -205,6 +209,24 @@ func (c *schemaServiceClient) GetVersionIdList(ctx context.Context, in *IdsReque
 	return out, nil
 }
 
+func (c *schemaServiceClient) GetSchemaByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*Schema, error) {
+	out := new(Schema)
+	err := c.cc.Invoke(ctx, SchemaService_GetSchemaByNameAndID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *schemaServiceClient) GetVersionByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*SchemaVersion, error) {
+	out := new(SchemaVersion)
+	err := c.cc.Invoke(ctx, SchemaService_GetVersionByNameAndID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *schemaServiceClient) RemoveSchema(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
 	err := c.cc.Invoke(ctx, SchemaService_RemoveSchema_FullMethodName, in, out, opts...)
@@ -315,6 +337,8 @@ type SchemaServiceServer interface {
 	GetSchemaWithVersions(context.Context, *IdRequest) (*SchemaWithVersions, error)
 	GetSchemaWithVersion(context.Context, *IdRequest) (*SchemaWithVersion, error)
 	GetVersionIdList(context.Context, *IdsRequest) (*IdsRequest, error)
+	GetSchemaByNameAndID(context.Context, *NameAndIdRequest) (*Schema, error)
+	GetVersionByNameAndID(context.Context, *NameAndIdRequest) (*SchemaVersion, error)
 	// REMOVE
 	RemoveSchema(context.Context, *IdRequest) (*Empty, error)
 	RemoveSchemaVersion(context.Context, *IdRequest) (*Empty, error)
@@ -374,6 +398,12 @@ func (UnimplementedSchemaServiceServer) GetSchemaWithVersion(context.Context, *I
 }
 func (UnimplementedSchemaServiceServer) GetVersionIdList(context.Context, *IdsRequest) (*IdsRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVersionIdList not implemented")
+}
+func (UnimplementedSchemaServiceServer) GetSchemaByNameAndID(context.Context, *NameAndIdRequest) (*Schema, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSchemaByNameAndID not implemented")
+}
+func (UnimplementedSchemaServiceServer) GetVersionByNameAndID(context.Context, *NameAndIdRequest) (*SchemaVersion, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVersionByNameAndID not implemented")
 }
 func (UnimplementedSchemaServiceServer) RemoveSchema(context.Context, *IdRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveSchema not implemented")
@@ -652,6 +682,42 @@ func _SchemaService_GetVersionIdList_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SchemaService_GetSchemaByNameAndID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NameAndIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SchemaServiceServer).GetSchemaByNameAndID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SchemaService_GetSchemaByNameAndID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SchemaServiceServer).GetSchemaByNameAndID(ctx, req.(*NameAndIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SchemaService_GetVersionByNameAndID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NameAndIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SchemaServiceServer).GetVersionByNameAndID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SchemaService_GetVersionByNameAndID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SchemaServiceServer).GetVersionByNameAndID(ctx, req.(*NameAndIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SchemaService_RemoveSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdRequest)
 	if err := dec(in); err != nil {
@@ -890,6 +956,14 @@ var SchemaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetVersionIdList",
 			Handler:    _SchemaService_GetVersionIdList_Handler,
+		},
+		{
+			MethodName: "GetSchemaByNameAndID",
+			Handler:    _SchemaService_GetSchemaByNameAndID_Handler,
+		},
+		{
+			MethodName: "GetVersionByNameAndID",
+			Handler:    _SchemaService_GetVersionByNameAndID_Handler,
 		},
 		{
 			MethodName: "RemoveSchema",

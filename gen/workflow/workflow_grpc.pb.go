@@ -31,6 +31,7 @@ const (
 	WorkflowService_GetWorkflowDetailAndVersions_FullMethodName   = "/workflow.WorkflowService/GetWorkflowDetailAndVersions"
 	WorkflowService_GetWorkflowsCount_FullMethodName              = "/workflow.WorkflowService/GetWorkflowsCount"
 	WorkflowService_GetVersionDetails_FullMethodName              = "/workflow.WorkflowService/GetVersionDetails"
+	WorkflowService_GetWorkflowDetailByVersionId_FullMethodName   = "/workflow.WorkflowService/GetWorkflowDetailByVersionId"
 	WorkflowService_RemoveWorkflow_FullMethodName                 = "/workflow.WorkflowService/RemoveWorkflow"
 	WorkflowService_RemoveWorkflowVersion_FullMethodName          = "/workflow.WorkflowService/RemoveWorkflowVersion"
 	WorkflowService_CloneWorkflowVersion_FullMethodName           = "/workflow.WorkflowService/CloneWorkflowVersion"
@@ -65,6 +66,7 @@ type WorkflowServiceClient interface {
 	GetWorkflowDetailAndVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*WorkflowListView, error)
 	GetWorkflowsCount(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*CountResponse, error)
 	GetVersionDetails(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*ListTriggerURLResponse, error)
+	GetWorkflowDetailByVersionId(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Workflow, error)
 	// REMOVE
 	RemoveWorkflow(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*IdRequest, error)
 	RemoveWorkflowVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*IdRequest, error)
@@ -194,6 +196,15 @@ func (c *workflowServiceClient) GetWorkflowsCount(ctx context.Context, in *Empty
 func (c *workflowServiceClient) GetVersionDetails(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*ListTriggerURLResponse, error) {
 	out := new(ListTriggerURLResponse)
 	err := c.cc.Invoke(ctx, WorkflowService_GetVersionDetails_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *workflowServiceClient) GetWorkflowDetailByVersionId(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Workflow, error) {
+	out := new(Workflow)
+	err := c.cc.Invoke(ctx, WorkflowService_GetWorkflowDetailByVersionId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -336,6 +347,7 @@ type WorkflowServiceServer interface {
 	GetWorkflowDetailAndVersions(context.Context, *IdRequest) (*WorkflowListView, error)
 	GetWorkflowsCount(context.Context, *Empty) (*CountResponse, error)
 	GetVersionDetails(context.Context, *IdRequest) (*ListTriggerURLResponse, error)
+	GetWorkflowDetailByVersionId(context.Context, *IdRequest) (*Workflow, error)
 	// REMOVE
 	RemoveWorkflow(context.Context, *IdRequest) (*IdRequest, error)
 	RemoveWorkflowVersion(context.Context, *IdRequest) (*IdRequest, error)
@@ -395,6 +407,9 @@ func (UnimplementedWorkflowServiceServer) GetWorkflowsCount(context.Context, *Em
 }
 func (UnimplementedWorkflowServiceServer) GetVersionDetails(context.Context, *IdRequest) (*ListTriggerURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVersionDetails not implemented")
+}
+func (UnimplementedWorkflowServiceServer) GetWorkflowDetailByVersionId(context.Context, *IdRequest) (*Workflow, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorkflowDetailByVersionId not implemented")
 }
 func (UnimplementedWorkflowServiceServer) RemoveWorkflow(context.Context, *IdRequest) (*IdRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveWorkflow not implemented")
@@ -660,6 +675,24 @@ func _WorkflowService_GetVersionDetails_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WorkflowServiceServer).GetVersionDetails(ctx, req.(*IdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WorkflowService_GetWorkflowDetailByVersionId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkflowServiceServer).GetWorkflowDetailByVersionId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WorkflowService_GetWorkflowDetailByVersionId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkflowServiceServer).GetWorkflowDetailByVersionId(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -952,6 +985,10 @@ var WorkflowService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetVersionDetails",
 			Handler:    _WorkflowService_GetVersionDetails_Handler,
+		},
+		{
+			MethodName: "GetWorkflowDetailByVersionId",
+			Handler:    _WorkflowService_GetWorkflowDetailByVersionId_Handler,
 		},
 		{
 			MethodName: "RemoveWorkflow",
