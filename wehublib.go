@@ -33,6 +33,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"syscall"
 )
 
@@ -328,6 +329,10 @@ var (
 		ctx = context.WithValue(ctx, "token", token)
 
 		if clientID, ok := claims["extension_clientid"]; ok {
+			fmt.Println("---clientID")
+			fmt.Println(clientID)
+			fmt.Println(reflect.TypeOf(clientID))
+			fmt.Println()
 			oid, err := primitive.ObjectIDFromHex(clientID.(string))
 			if err != nil {
 				return nil, status.Errorf(codes.Unauthenticated, "convert string clientID to ObjectID: %s", err)
