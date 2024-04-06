@@ -2,6 +2,7 @@ package wehublib
 
 import (
 	"context"
+	apimanagement "github.com/MyWeHub/plugin-sdk/apiManagement"
 	"github.com/MyWeHub/plugin-sdk/connectionService"
 	"github.com/MyWeHub/plugin-sdk/nats"
 	"github.com/MyWeHub/plugin-sdk/util"
@@ -30,6 +31,7 @@ func NewTelemetry() *Telemetry {
 
 	nats.SetTelemetry(logger, tracer)
 	connectionService.SetTelemetry(logger, tracer)
+	apimanagement.SetTelemetry(logger, tracer)
 
 	return &Telemetry{
 		logger: logger,

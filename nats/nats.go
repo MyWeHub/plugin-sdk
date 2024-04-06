@@ -80,7 +80,10 @@ func (n *Nats) Listen(ctx context.Context, opts ...*ListenerOptions) { // TODO: 
 		}
 	}
 
-	pluginName := util.GetEnv("PLUGIN_NAME", false, "", true)
+	pluginName := util.GetEnv("PLUGIN_NAME", false, "", false)
+	if pluginName == "" {
+		logger.Warn("env 'PLUGIN_NAME' not found")
+	}
 
 	req := fmt.Sprintf("requestPluginConfig.%s", pluginName)
 	span.SetAttributes(attribute.String("topic", req))
