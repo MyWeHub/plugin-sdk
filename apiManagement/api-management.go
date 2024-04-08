@@ -60,13 +60,13 @@ func New() (*Adapter, error) {
 	}, nil
 }
 
-func (a Adapter) CreateAPIOperation(ctx context.Context, orgID, httpNodeId, transformationID string, createAPIGroup bool) error {
+func (a *Adapter) CreateAPIOperation(ctx context.Context, orgID, httpNodeId, transformationID string, createAPIGroup bool) error {
 	if createAPIGroup {
 		_, err := a.CreateApiGroup(ctx, orgID)
 		if err != nil {
 			return err
 		}
-		err = a.CreateSubscription(ctx, orgID)
+		_, err = a.CreateSubscription(ctx, orgID)
 		if err != nil {
 			return err
 		}
@@ -103,7 +103,7 @@ func (a Adapter) CreateAPIOperation(ctx context.Context, orgID, httpNodeId, tran
 	return nil
 }
 
-func (a Adapter) DeleteApiOperation(ctx context.Context, orgID string, httpNodeID string) error {
+func (a *Adapter) DeleteApiOperation(ctx context.Context, orgID string, httpNodeID string) error {
 	_, err := a.cf.NewAPIOperationClient().Delete(ctx, a.rgN, a.serviceName, createAPIID(orgID), httpNodeID, "*", nil)
 	if err != nil {
 		return err
@@ -111,9 +111,9 @@ func (a Adapter) DeleteApiOperation(ctx context.Context, orgID string, httpNodeI
 	return nil
 }
 
-func (a Adapter) CreateSubscription(ctx context.Context, orgId string) error {
+func (a *Adapter) CreateSubscription(ctx context.Context, orgId string) (*armapimanagement.SubscriptionClientCreateOrUpdateResponse, error) {
 	scope := fmt.Sprintf("/apis/%s", createAPIID(orgId))
-	_, err := a.cf.NewSubscriptionClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, orgId, armapimanagement.SubscriptionCreateParameters{
+	sr, err := a.cf.NewSubscriptionClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, orgId, armapimanagement.SubscriptionCreateParameters{
 		Properties: &armapimanagement.SubscriptionCreateParameterProperties{
 			DisplayName: &[]string{orgId}[0],
 			Scope:       &scope,
@@ -123,12 +123,12 @@ func (a Adapter) CreateSubscription(ctx context.Context, orgId string) error {
 		AppType: nil,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &sr, nil
 }
 
-func (a Adapter) CreateApiGroup(ctx context.Context, orgID string) (*armapimanagement.APIContract, error) {
+func (a *Adapter) CreateApiGroup(ctx context.Context, orgID string) (*armapimanagement.APIContract, error) {
 	apTp := armapimanagement.APITypeHTTP
 	name := createAPIID(orgID)
 	poller, err := a.cf.NewAPIClient().BeginCreateOrUpdate(ctx, a.rgN, a.serviceName, name, armapimanagement.APICreateOrUpdateParameter{
@@ -158,7 +158,7 @@ func (a Adapter) CreateApiGroup(ctx context.Context, orgID string) (*armapimanag
 
 }
 
-func (a Adapter) GetSubscriptionKeys(ctx context.Context, orgId string) (armapimanagement.SubscriptionClientListSecretsResponse, error) {
+func (a *Adapter) GetSubscriptionKeys(ctx context.Context, orgId string) (armapimanagement.SubscriptionClientListSecretsResponse, error) {
 	subResp, err := a.cf.NewSubscriptionClient().ListSecrets(ctx, a.rgN, a.serviceName, orgId, nil)
 	if err != nil {
 		return armapimanagement.SubscriptionClientListSecretsResponse{}, nil
