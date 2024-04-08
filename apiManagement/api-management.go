@@ -60,13 +60,60 @@ func New() (*Adapter, error) {
 	}, nil
 }
 
-// CreateSubscription
-// apiID is part of create apigroup response
-// notice! the api must exist at first before calling this
-// so before this call CreateApiGroup
-func (a *Adapter) CreateSubscription(ctx context.Context, orgId string) (*armapimanagement.SubscriptionClientCreateOrUpdateResponse, error) {
+func (a Adapter) CreateAPIOperation(ctx context.Context, orgID, httpNodeId, transformationID string, createAPIGroup bool) error {
+	if createAPIGroup {
+		_, err := a.CreateApiGroup(ctx, orgID)
+		if err != nil {
+			return err
+		}
+		err = a.CreateSubscription(ctx, orgID)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err := a.cf.NewAPIOperationClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, createAPIID(orgID), httpNodeId, armapimanagement.OperationContract{
+		Properties: &armapimanagement.OperationContractProperties{
+			Method:      strToPtr("POST"),
+			DisplayName: strToPtr(httpNodeId),
+			URLTemplate: strToPtr(fmt.Sprintf("/%s/%s", transformationID, httpNodeId)),
+		},
+	}, &armapimanagement.APIOperationClientCreateOrUpdateOptions{IfMatch: nil})
+	if err != nil {
+		if createAPIGroup {
+			return err
+		}
+		return a.CreateAPIOperation(ctx, orgID, httpNodeId, transformationID, true)
+	}
+	_, err = a.cf.NewAPIOperationPolicyClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, createAPIID(orgID), httpNodeId, armapimanagement.PolicyIDNamePolicy,
+		armapimanagement.PolicyContract{
+			Properties: &armapimanagement.PolicyContractProperties{
+				Value: strToPtr(
+					fmt.Sprintf(
+						`<policies><inbound><base /><set-header name="cid" exists-action="override"><value>%s</value></set-header></inbound><backend><base /></backend><outbound><base /></outbound><on-error><base /></on-error></policies>`,
+						orgID),
+				),
+				Format: &[]armapimanagement.PolicyContentFormat{armapimanagement.PolicyContentFormatXML}[0],
+			},
+		}, nil,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a Adapter) DeleteApiOperation(ctx context.Context, orgID string, httpNodeID string) error {
+	_, err := a.cf.NewAPIOperationClient().Delete(ctx, a.rgN, a.serviceName, createAPIID(orgID), httpNodeID, "*", nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a Adapter) CreateSubscription(ctx context.Context, orgId string) error {
 	scope := fmt.Sprintf("/apis/%s", createAPIID(orgId))
-	sr, err := a.cf.NewSubscriptionClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, orgId, armapimanagement.SubscriptionCreateParameters{
+	_, err := a.cf.NewSubscriptionClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, orgId, armapimanagement.SubscriptionCreateParameters{
 		Properties: &armapimanagement.SubscriptionCreateParameterProperties{
 			DisplayName: &[]string{orgId}[0],
 			Scope:       &scope,
@@ -76,11 +123,12 @@ func (a *Adapter) CreateSubscription(ctx context.Context, orgId string) (*armapi
 		AppType: nil,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &sr, nil
+	return nil
 }
-func (a *Adapter) CreateApiGroup(ctx context.Context, orgID string) (*armapimanagement.APIContract, error) {
+
+func (a Adapter) CreateApiGroup(ctx context.Context, orgID string) (*armapimanagement.APIContract, error) {
 	apTp := armapimanagement.APITypeHTTP
 	name := createAPIID(orgID)
 	poller, err := a.cf.NewAPIClient().BeginCreateOrUpdate(ctx, a.rgN, a.serviceName, name, armapimanagement.APICreateOrUpdateParameter{
@@ -105,42 +153,17 @@ func (a *Adapter) CreateApiGroup(ctx context.Context, orgID string) (*armapimana
 	if err != nil {
 		return nil, err
 	}
+
 	return &res.APIContract, nil
-}
-func (a *Adapter) CreateAPIOperation(ctx context.Context, orgID, httpNodeId, transformationID string) error {
-	_, err := a.cf.NewAPIOperationClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, createAPIID(orgID), httpNodeId, armapimanagement.OperationContract{
-		Properties: &armapimanagement.OperationContractProperties{
-			Method:      strToPtr("POST"),
-			DisplayName: strToPtr(httpNodeId),
-			URLTemplate: strToPtr(fmt.Sprintf("/%s/%s", transformationID, httpNodeId)),
-		},
-	}, &armapimanagement.APIOperationClientCreateOrUpdateOptions{IfMatch: nil})
-	if err != nil {
-		return err
-	}
-	_, err = a.cf.NewAPIOperationPolicyClient().CreateOrUpdate(ctx, a.rgN, a.serviceName, createAPIID(orgID), httpNodeId, armapimanagement.PolicyIDNamePolicy,
-		armapimanagement.PolicyContract{
-			Properties: &armapimanagement.PolicyContractProperties{
-				Value: strToPtr(
-					fmt.Sprintf(
-						`<policies><inbound><base /><set-header name="cid" exists-action="override"><value>%s</value></set-header></inbound><backend><base /></backend><outbound><base /></outbound><on-error><base /></on-error></policies>`,
-						orgID),
-				),
-				Format: &[]armapimanagement.PolicyContentFormat{armapimanagement.PolicyContentFormatXML}[0],
-			},
-		}, nil,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+
 }
 
-func (a *Adapter) GetSubscriptionKeys(ctx context.Context, orgId string) (armapimanagement.SubscriptionClientListSecretsResponse, error) {
+func (a Adapter) GetSubscriptionKeys(ctx context.Context, orgId string) (armapimanagement.SubscriptionClientListSecretsResponse, error) {
 	subResp, err := a.cf.NewSubscriptionClient().ListSecrets(ctx, a.rgN, a.serviceName, orgId, nil)
 	if err != nil {
-		return armapimanagement.SubscriptionClientListSecretsResponse{}, nil // TODO: Any reason Mohammad is doing this?
+		return armapimanagement.SubscriptionClientListSecretsResponse{}, nil
 	}
+
 	return subResp, nil
 }
 
