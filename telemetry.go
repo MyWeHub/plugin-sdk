@@ -23,7 +23,10 @@ type Telemetry struct {
 }
 
 func NewTelemetry() *Telemetry {
-	serviceName := util.GetEnv("OTEL_JAEGER_SERVICE_NAME", false, "", true)
+	serviceName := util.GetEnv("OTEL_JAEGER_SERVICE_NAME", false, "", false)
+	if serviceName == "" {
+		logger.Warn("env 'OTEL_JAEGER_SERVICE_NAME' not found")
+	}
 	tp := newTracerProvider(serviceName)
 
 	logger = newZapLogger()

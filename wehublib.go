@@ -29,6 +29,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -83,6 +84,14 @@ type grpcServer struct {
 }
 
 func NewServer() *server {
+	env := util.LoadEnvironment()
+	switch env {
+	case util.EnvPROD:
+		log.Println("Initiating Server in 'PRODUCTION' mode")
+	case util.EnvDEV:
+		log.Println("Initiating Server in 'DEVELOPMENT' mode")
+	}
+
 	return &server{
 		grpcPort:     util.GetEnv("GRPC_PORT", true, "6852", false),
 		httpPort:     util.GetEnv("HTTP_PORT", true, "3000", false),

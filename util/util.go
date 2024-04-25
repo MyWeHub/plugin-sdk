@@ -8,6 +8,15 @@ import (
 	"strconv"
 )
 
+const (
+	EnvPROD = "PROD"
+	EnvDEV  = "DEV"
+)
+
+func LoadEnvironment() string {
+	return GetEnv("ENVIRONMENT", false, EnvPROD, false)
+}
+
 func GetStringPtr(s string) *string {
 	return &s
 }

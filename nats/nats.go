@@ -30,6 +30,7 @@ type Nats struct {
 	conn       *nats.EncodedConn
 	Cache      map[string]*NodeConfig
 	ConfigType proto.Message
+	env        string
 }
 
 type ListenerOptions struct {
@@ -42,23 +43,36 @@ func New(configType proto.Message) *Nats {
 		panic(errors.New("nats: ConfigType parameter is nil"))
 	}
 
+	env := util.LoadEnvironment()
+
 	natsURL := util.GetEnv("NATS", false, "nats://localhost:4222", false)
 	conn, err := nats.Connect(natsURL)
 	if err != nil {
 		logger.Error("failed to connect to NATS", zap.String("nats URL", natsURL), zap.Error(err))
-		panic(err)
+
+		if env == util.EnvPROD {
+			panic(err)
+		} else {
+			logger.Warn("Nats Request Failed", zap.Error(err))
+		}
 	}
 
 	encodedConn, err := nats.NewEncodedConn(conn, nats.JSON_ENCODER)
 	if err != nil {
 		logger.Error("failed to Encode Connection", zap.Error(err))
-		panic(err)
+
+		if env == util.EnvPROD {
+			panic(err)
+		} else {
+			logger.Warn("Nats Request Failed", zap.Error(err))
+		}
 	}
 
 	return &Nats{
 		conn:       encodedConn,
 		Cache:      make(map[string]*NodeConfig),
 		ConfigType: configType,
+		env:        env,
 	}
 }
 
@@ -93,7 +107,12 @@ func (n *Nats) Listen(ctx context.Context, opts ...*ListenerOptions) { // TODO: 
 		logger.Error("Request failed", zap.Error(err))
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
-		panic(err)
+
+		if n.env == util.EnvPROD {
+			panic(err)
+		} else {
+			logger.Warn("Nats Request Failed", zap.Error(err))
+		}
 	}
 
 	configs := make([]NodeConfig, 0, len(natsConfigs))
