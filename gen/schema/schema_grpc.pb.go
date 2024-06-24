@@ -58,12 +58,12 @@ type SchemaServiceClient interface {
 	// LIST
 	ListSchemas(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Schemas, error)
 	ListVersions(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Versions, error)
-	ListSchemasWithVersions(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*SchemasWithVersions, error)
-	ListTrashSchemas(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*SchemasWithVersions, error)
+	ListSchemasWithVersions(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*Schemas, error)
+	ListTrashSchemas(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Schemas, error)
 	// GET
 	GetSchema(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Schema, error)
 	GetVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaVersion, error)
-	GetSchemaWithVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaWithVersions, error)
+	GetSchemaWithVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Schema, error)
 	GetSchemaWithVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaWithVersion, error)
 	GetVersionIdList(ctx context.Context, in *IdsRequest, opts ...grpc.CallOption) (*IdsRequest, error)
 	GetSchemaByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*Schema, error)
@@ -72,7 +72,7 @@ type SchemaServiceClient interface {
 	RemoveSchema(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error)
 	RemoveSchemaVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Empty, error)
 	// CLONE
-	CloneSchema(ctx context.Context, in *CloneSchemaReq, opts ...grpc.CallOption) (*SchemaWithVersions, error)
+	CloneSchema(ctx context.Context, in *CloneSchemaReq, opts ...grpc.CallOption) (*Schema, error)
 	CloneSchemaVersion(ctx context.Context, in *CloneSchemaVersionReq, opts ...grpc.CallOption) (*SchemaVersion, error)
 	// SAVE/UPDATE
 	SaveSchema(ctx context.Context, in *Schema, opts ...grpc.CallOption) (*Schema, error)
@@ -146,8 +146,8 @@ func (c *schemaServiceClient) ListVersions(ctx context.Context, in *Empty, opts 
 	return out, nil
 }
 
-func (c *schemaServiceClient) ListSchemasWithVersions(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*SchemasWithVersions, error) {
-	out := new(SchemasWithVersions)
+func (c *schemaServiceClient) ListSchemasWithVersions(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*Schemas, error) {
+	out := new(Schemas)
 	err := c.cc.Invoke(ctx, SchemaService_ListSchemasWithVersions_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -155,8 +155,8 @@ func (c *schemaServiceClient) ListSchemasWithVersions(ctx context.Context, in *F
 	return out, nil
 }
 
-func (c *schemaServiceClient) ListTrashSchemas(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*SchemasWithVersions, error) {
-	out := new(SchemasWithVersions)
+func (c *schemaServiceClient) ListTrashSchemas(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Schemas, error) {
+	out := new(Schemas)
 	err := c.cc.Invoke(ctx, SchemaService_ListTrashSchemas_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -182,8 +182,8 @@ func (c *schemaServiceClient) GetVersion(ctx context.Context, in *IdRequest, opt
 	return out, nil
 }
 
-func (c *schemaServiceClient) GetSchemaWithVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*SchemaWithVersions, error) {
-	out := new(SchemaWithVersions)
+func (c *schemaServiceClient) GetSchemaWithVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Schema, error) {
+	out := new(Schema)
 	err := c.cc.Invoke(ctx, SchemaService_GetSchemaWithVersions_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -245,8 +245,8 @@ func (c *schemaServiceClient) RemoveSchemaVersion(ctx context.Context, in *IdReq
 	return out, nil
 }
 
-func (c *schemaServiceClient) CloneSchema(ctx context.Context, in *CloneSchemaReq, opts ...grpc.CallOption) (*SchemaWithVersions, error) {
-	out := new(SchemaWithVersions)
+func (c *schemaServiceClient) CloneSchema(ctx context.Context, in *CloneSchemaReq, opts ...grpc.CallOption) (*Schema, error) {
+	out := new(Schema)
 	err := c.cc.Invoke(ctx, SchemaService_CloneSchema_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -329,12 +329,12 @@ type SchemaServiceServer interface {
 	// LIST
 	ListSchemas(context.Context, *Empty) (*Schemas, error)
 	ListVersions(context.Context, *Empty) (*Versions, error)
-	ListSchemasWithVersions(context.Context, *Filter) (*SchemasWithVersions, error)
-	ListTrashSchemas(context.Context, *Empty) (*SchemasWithVersions, error)
+	ListSchemasWithVersions(context.Context, *Filter) (*Schemas, error)
+	ListTrashSchemas(context.Context, *Empty) (*Schemas, error)
 	// GET
 	GetSchema(context.Context, *IdRequest) (*Schema, error)
 	GetVersion(context.Context, *IdRequest) (*SchemaVersion, error)
-	GetSchemaWithVersions(context.Context, *IdRequest) (*SchemaWithVersions, error)
+	GetSchemaWithVersions(context.Context, *IdRequest) (*Schema, error)
 	GetSchemaWithVersion(context.Context, *IdRequest) (*SchemaWithVersion, error)
 	GetVersionIdList(context.Context, *IdsRequest) (*IdsRequest, error)
 	GetSchemaByNameAndID(context.Context, *NameAndIdRequest) (*Schema, error)
@@ -343,7 +343,7 @@ type SchemaServiceServer interface {
 	RemoveSchema(context.Context, *IdRequest) (*Empty, error)
 	RemoveSchemaVersion(context.Context, *IdRequest) (*Empty, error)
 	// CLONE
-	CloneSchema(context.Context, *CloneSchemaReq) (*SchemaWithVersions, error)
+	CloneSchema(context.Context, *CloneSchemaReq) (*Schema, error)
 	CloneSchemaVersion(context.Context, *CloneSchemaVersionReq) (*SchemaVersion, error)
 	// SAVE/UPDATE
 	SaveSchema(context.Context, *Schema) (*Schema, error)
@@ -378,10 +378,10 @@ func (UnimplementedSchemaServiceServer) ListSchemas(context.Context, *Empty) (*S
 func (UnimplementedSchemaServiceServer) ListVersions(context.Context, *Empty) (*Versions, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListVersions not implemented")
 }
-func (UnimplementedSchemaServiceServer) ListSchemasWithVersions(context.Context, *Filter) (*SchemasWithVersions, error) {
+func (UnimplementedSchemaServiceServer) ListSchemasWithVersions(context.Context, *Filter) (*Schemas, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSchemasWithVersions not implemented")
 }
-func (UnimplementedSchemaServiceServer) ListTrashSchemas(context.Context, *Empty) (*SchemasWithVersions, error) {
+func (UnimplementedSchemaServiceServer) ListTrashSchemas(context.Context, *Empty) (*Schemas, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTrashSchemas not implemented")
 }
 func (UnimplementedSchemaServiceServer) GetSchema(context.Context, *IdRequest) (*Schema, error) {
@@ -390,7 +390,7 @@ func (UnimplementedSchemaServiceServer) GetSchema(context.Context, *IdRequest) (
 func (UnimplementedSchemaServiceServer) GetVersion(context.Context, *IdRequest) (*SchemaVersion, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVersion not implemented")
 }
-func (UnimplementedSchemaServiceServer) GetSchemaWithVersions(context.Context, *IdRequest) (*SchemaWithVersions, error) {
+func (UnimplementedSchemaServiceServer) GetSchemaWithVersions(context.Context, *IdRequest) (*Schema, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSchemaWithVersions not implemented")
 }
 func (UnimplementedSchemaServiceServer) GetSchemaWithVersion(context.Context, *IdRequest) (*SchemaWithVersion, error) {
@@ -411,7 +411,7 @@ func (UnimplementedSchemaServiceServer) RemoveSchema(context.Context, *IdRequest
 func (UnimplementedSchemaServiceServer) RemoveSchemaVersion(context.Context, *IdRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveSchemaVersion not implemented")
 }
-func (UnimplementedSchemaServiceServer) CloneSchema(context.Context, *CloneSchemaReq) (*SchemaWithVersions, error) {
+func (UnimplementedSchemaServiceServer) CloneSchema(context.Context, *CloneSchemaReq) (*Schema, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloneSchema not implemented")
 }
 func (UnimplementedSchemaServiceServer) CloneSchemaVersion(context.Context, *CloneSchemaVersionReq) (*SchemaVersion, error) {

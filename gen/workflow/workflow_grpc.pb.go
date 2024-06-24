@@ -52,7 +52,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkflowServiceClient interface {
 	// CREATE
-	CreateWorkflow(ctx context.Context, in *NewWorkflowRequest, opts ...grpc.CallOption) (*Workflow, error)
+	CreateWorkflow(ctx context.Context, in *NewWorkflowRequest, opts ...grpc.CallOption) (*NewWorkflow, error)
 	CreateWorkflowVersion(ctx context.Context, in *NewWorkflowVersionRequest, opts ...grpc.CallOption) (*WorkflowVersion, error)
 	// LIST
 	ListWorkflows(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WorkflowsResponse, error)
@@ -61,20 +61,20 @@ type WorkflowServiceClient interface {
 	ListSubWorkflows(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListSubWorkflowsRes, error)
 	ListTemplates(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WorkflowsResponse, error)
 	// GET
-	GetWorkflow(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Workflow, error)
-	GetWorkflowVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*WorkflowVersion, error)
+	GetWorkflow(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*NewWorkflow, error)
+	GetWorkflowVersion(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*WorkflowVersion, error)
 	GetWorkflowDetailAndVersions(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*WorkflowListView, error)
 	GetWorkflowsCount(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*CountResponse, error)
-	GetVersionTriggersEntrypoint(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*ListTriggersEntrypointResponse, error)
-	GetWorkflowDetailByVersionId(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Workflow, error)
+	GetVersionTriggersEntrypoint(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*ListTriggersEntrypointResponse, error)
+	GetWorkflowDetailByVersionId(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*NewWorkflow, error)
 	// REMOVE
 	RemoveWorkflow(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*IdRequest, error)
-	RemoveWorkflowVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*IdRequest, error)
+	RemoveWorkflowVersion(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*IdRequest, error)
 	// CLONE
 	CloneWorkflowVersion(ctx context.Context, in *CloneWorkflowVersionRequest, opts ...grpc.CallOption) (*WorkflowVersionView, error)
 	CloneWorkflow(ctx context.Context, in *CloneWorkflowReq, opts ...grpc.CallOption) (*WorkflowListView, error)
 	// SAVE
-	SaveWorkflow(ctx context.Context, in *Workflow, opts ...grpc.CallOption) (*Workflow, error)
+	SaveWorkflow(ctx context.Context, in *SaveWorkflowReq, opts ...grpc.CallOption) (*Empty, error)
 	SaveWorkflowVersion(ctx context.Context, in *WorkflowVersion, opts ...grpc.CallOption) (*WorkflowVersion, error)
 	SaveTestData(ctx context.Context, in *TestData, opts ...grpc.CallOption) (*Empty, error)
 	// MISCELLANEOUS
@@ -94,8 +94,8 @@ func NewWorkflowServiceClient(cc grpc.ClientConnInterface) WorkflowServiceClient
 	return &workflowServiceClient{cc}
 }
 
-func (c *workflowServiceClient) CreateWorkflow(ctx context.Context, in *NewWorkflowRequest, opts ...grpc.CallOption) (*Workflow, error) {
-	out := new(Workflow)
+func (c *workflowServiceClient) CreateWorkflow(ctx context.Context, in *NewWorkflowRequest, opts ...grpc.CallOption) (*NewWorkflow, error) {
+	out := new(NewWorkflow)
 	err := c.cc.Invoke(ctx, WorkflowService_CreateWorkflow_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -157,8 +157,8 @@ func (c *workflowServiceClient) ListTemplates(ctx context.Context, in *Empty, op
 	return out, nil
 }
 
-func (c *workflowServiceClient) GetWorkflow(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Workflow, error) {
-	out := new(Workflow)
+func (c *workflowServiceClient) GetWorkflow(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*NewWorkflow, error) {
+	out := new(NewWorkflow)
 	err := c.cc.Invoke(ctx, WorkflowService_GetWorkflow_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (c *workflowServiceClient) GetWorkflow(ctx context.Context, in *IdRequest, 
 	return out, nil
 }
 
-func (c *workflowServiceClient) GetWorkflowVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*WorkflowVersion, error) {
+func (c *workflowServiceClient) GetWorkflowVersion(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*WorkflowVersion, error) {
 	out := new(WorkflowVersion)
 	err := c.cc.Invoke(ctx, WorkflowService_GetWorkflowVersion_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -193,7 +193,7 @@ func (c *workflowServiceClient) GetWorkflowsCount(ctx context.Context, in *Empty
 	return out, nil
 }
 
-func (c *workflowServiceClient) GetVersionTriggersEntrypoint(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*ListTriggersEntrypointResponse, error) {
+func (c *workflowServiceClient) GetVersionTriggersEntrypoint(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*ListTriggersEntrypointResponse, error) {
 	out := new(ListTriggersEntrypointResponse)
 	err := c.cc.Invoke(ctx, WorkflowService_GetVersionTriggersEntrypoint_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -202,8 +202,8 @@ func (c *workflowServiceClient) GetVersionTriggersEntrypoint(ctx context.Context
 	return out, nil
 }
 
-func (c *workflowServiceClient) GetWorkflowDetailByVersionId(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Workflow, error) {
-	out := new(Workflow)
+func (c *workflowServiceClient) GetWorkflowDetailByVersionId(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*NewWorkflow, error) {
+	out := new(NewWorkflow)
 	err := c.cc.Invoke(ctx, WorkflowService_GetWorkflowDetailByVersionId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -220,7 +220,7 @@ func (c *workflowServiceClient) RemoveWorkflow(ctx context.Context, in *IdReques
 	return out, nil
 }
 
-func (c *workflowServiceClient) RemoveWorkflowVersion(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*IdRequest, error) {
+func (c *workflowServiceClient) RemoveWorkflowVersion(ctx context.Context, in *IdAndWorkflowIdReq, opts ...grpc.CallOption) (*IdRequest, error) {
 	out := new(IdRequest)
 	err := c.cc.Invoke(ctx, WorkflowService_RemoveWorkflowVersion_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -247,8 +247,8 @@ func (c *workflowServiceClient) CloneWorkflow(ctx context.Context, in *CloneWork
 	return out, nil
 }
 
-func (c *workflowServiceClient) SaveWorkflow(ctx context.Context, in *Workflow, opts ...grpc.CallOption) (*Workflow, error) {
-	out := new(Workflow)
+func (c *workflowServiceClient) SaveWorkflow(ctx context.Context, in *SaveWorkflowReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, WorkflowService_SaveWorkflow_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -333,7 +333,7 @@ func (c *workflowServiceClient) UnPublishWorkflow(ctx context.Context, in *Workf
 // for forward compatibility
 type WorkflowServiceServer interface {
 	// CREATE
-	CreateWorkflow(context.Context, *NewWorkflowRequest) (*Workflow, error)
+	CreateWorkflow(context.Context, *NewWorkflowRequest) (*NewWorkflow, error)
 	CreateWorkflowVersion(context.Context, *NewWorkflowVersionRequest) (*WorkflowVersion, error)
 	// LIST
 	ListWorkflows(context.Context, *Empty) (*WorkflowsResponse, error)
@@ -342,20 +342,20 @@ type WorkflowServiceServer interface {
 	ListSubWorkflows(context.Context, *Empty) (*ListSubWorkflowsRes, error)
 	ListTemplates(context.Context, *Empty) (*WorkflowsResponse, error)
 	// GET
-	GetWorkflow(context.Context, *IdRequest) (*Workflow, error)
-	GetWorkflowVersion(context.Context, *IdRequest) (*WorkflowVersion, error)
+	GetWorkflow(context.Context, *IdRequest) (*NewWorkflow, error)
+	GetWorkflowVersion(context.Context, *IdAndWorkflowIdReq) (*WorkflowVersion, error)
 	GetWorkflowDetailAndVersions(context.Context, *IdRequest) (*WorkflowListView, error)
 	GetWorkflowsCount(context.Context, *Empty) (*CountResponse, error)
-	GetVersionTriggersEntrypoint(context.Context, *IdRequest) (*ListTriggersEntrypointResponse, error)
-	GetWorkflowDetailByVersionId(context.Context, *IdRequest) (*Workflow, error)
+	GetVersionTriggersEntrypoint(context.Context, *IdAndWorkflowIdReq) (*ListTriggersEntrypointResponse, error)
+	GetWorkflowDetailByVersionId(context.Context, *IdAndWorkflowIdReq) (*NewWorkflow, error)
 	// REMOVE
 	RemoveWorkflow(context.Context, *IdRequest) (*IdRequest, error)
-	RemoveWorkflowVersion(context.Context, *IdRequest) (*IdRequest, error)
+	RemoveWorkflowVersion(context.Context, *IdAndWorkflowIdReq) (*IdRequest, error)
 	// CLONE
 	CloneWorkflowVersion(context.Context, *CloneWorkflowVersionRequest) (*WorkflowVersionView, error)
 	CloneWorkflow(context.Context, *CloneWorkflowReq) (*WorkflowListView, error)
 	// SAVE
-	SaveWorkflow(context.Context, *Workflow) (*Workflow, error)
+	SaveWorkflow(context.Context, *SaveWorkflowReq) (*Empty, error)
 	SaveWorkflowVersion(context.Context, *WorkflowVersion) (*WorkflowVersion, error)
 	SaveTestData(context.Context, *TestData) (*Empty, error)
 	// MISCELLANEOUS
@@ -372,7 +372,7 @@ type WorkflowServiceServer interface {
 type UnimplementedWorkflowServiceServer struct {
 }
 
-func (UnimplementedWorkflowServiceServer) CreateWorkflow(context.Context, *NewWorkflowRequest) (*Workflow, error) {
+func (UnimplementedWorkflowServiceServer) CreateWorkflow(context.Context, *NewWorkflowRequest) (*NewWorkflow, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateWorkflow not implemented")
 }
 func (UnimplementedWorkflowServiceServer) CreateWorkflowVersion(context.Context, *NewWorkflowVersionRequest) (*WorkflowVersion, error) {
@@ -393,10 +393,10 @@ func (UnimplementedWorkflowServiceServer) ListSubWorkflows(context.Context, *Emp
 func (UnimplementedWorkflowServiceServer) ListTemplates(context.Context, *Empty) (*WorkflowsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTemplates not implemented")
 }
-func (UnimplementedWorkflowServiceServer) GetWorkflow(context.Context, *IdRequest) (*Workflow, error) {
+func (UnimplementedWorkflowServiceServer) GetWorkflow(context.Context, *IdRequest) (*NewWorkflow, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkflow not implemented")
 }
-func (UnimplementedWorkflowServiceServer) GetWorkflowVersion(context.Context, *IdRequest) (*WorkflowVersion, error) {
+func (UnimplementedWorkflowServiceServer) GetWorkflowVersion(context.Context, *IdAndWorkflowIdReq) (*WorkflowVersion, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkflowVersion not implemented")
 }
 func (UnimplementedWorkflowServiceServer) GetWorkflowDetailAndVersions(context.Context, *IdRequest) (*WorkflowListView, error) {
@@ -405,16 +405,16 @@ func (UnimplementedWorkflowServiceServer) GetWorkflowDetailAndVersions(context.C
 func (UnimplementedWorkflowServiceServer) GetWorkflowsCount(context.Context, *Empty) (*CountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkflowsCount not implemented")
 }
-func (UnimplementedWorkflowServiceServer) GetVersionTriggersEntrypoint(context.Context, *IdRequest) (*ListTriggersEntrypointResponse, error) {
+func (UnimplementedWorkflowServiceServer) GetVersionTriggersEntrypoint(context.Context, *IdAndWorkflowIdReq) (*ListTriggersEntrypointResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVersionTriggersEntrypoint not implemented")
 }
-func (UnimplementedWorkflowServiceServer) GetWorkflowDetailByVersionId(context.Context, *IdRequest) (*Workflow, error) {
+func (UnimplementedWorkflowServiceServer) GetWorkflowDetailByVersionId(context.Context, *IdAndWorkflowIdReq) (*NewWorkflow, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkflowDetailByVersionId not implemented")
 }
 func (UnimplementedWorkflowServiceServer) RemoveWorkflow(context.Context, *IdRequest) (*IdRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveWorkflow not implemented")
 }
-func (UnimplementedWorkflowServiceServer) RemoveWorkflowVersion(context.Context, *IdRequest) (*IdRequest, error) {
+func (UnimplementedWorkflowServiceServer) RemoveWorkflowVersion(context.Context, *IdAndWorkflowIdReq) (*IdRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveWorkflowVersion not implemented")
 }
 func (UnimplementedWorkflowServiceServer) CloneWorkflowVersion(context.Context, *CloneWorkflowVersionRequest) (*WorkflowVersionView, error) {
@@ -423,7 +423,7 @@ func (UnimplementedWorkflowServiceServer) CloneWorkflowVersion(context.Context, 
 func (UnimplementedWorkflowServiceServer) CloneWorkflow(context.Context, *CloneWorkflowReq) (*WorkflowListView, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloneWorkflow not implemented")
 }
-func (UnimplementedWorkflowServiceServer) SaveWorkflow(context.Context, *Workflow) (*Workflow, error) {
+func (UnimplementedWorkflowServiceServer) SaveWorkflow(context.Context, *SaveWorkflowReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveWorkflow not implemented")
 }
 func (UnimplementedWorkflowServiceServer) SaveWorkflowVersion(context.Context, *WorkflowVersion) (*WorkflowVersion, error) {
@@ -608,7 +608,7 @@ func _WorkflowService_GetWorkflow_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _WorkflowService_GetWorkflowVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdRequest)
+	in := new(IdAndWorkflowIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -620,7 +620,7 @@ func _WorkflowService_GetWorkflowVersion_Handler(srv interface{}, ctx context.Co
 		FullMethod: WorkflowService_GetWorkflowVersion_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkflowServiceServer).GetWorkflowVersion(ctx, req.(*IdRequest))
+		return srv.(WorkflowServiceServer).GetWorkflowVersion(ctx, req.(*IdAndWorkflowIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -662,7 +662,7 @@ func _WorkflowService_GetWorkflowsCount_Handler(srv interface{}, ctx context.Con
 }
 
 func _WorkflowService_GetVersionTriggersEntrypoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdRequest)
+	in := new(IdAndWorkflowIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -674,13 +674,13 @@ func _WorkflowService_GetVersionTriggersEntrypoint_Handler(srv interface{}, ctx 
 		FullMethod: WorkflowService_GetVersionTriggersEntrypoint_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkflowServiceServer).GetVersionTriggersEntrypoint(ctx, req.(*IdRequest))
+		return srv.(WorkflowServiceServer).GetVersionTriggersEntrypoint(ctx, req.(*IdAndWorkflowIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _WorkflowService_GetWorkflowDetailByVersionId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdRequest)
+	in := new(IdAndWorkflowIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -692,7 +692,7 @@ func _WorkflowService_GetWorkflowDetailByVersionId_Handler(srv interface{}, ctx 
 		FullMethod: WorkflowService_GetWorkflowDetailByVersionId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkflowServiceServer).GetWorkflowDetailByVersionId(ctx, req.(*IdRequest))
+		return srv.(WorkflowServiceServer).GetWorkflowDetailByVersionId(ctx, req.(*IdAndWorkflowIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -716,7 +716,7 @@ func _WorkflowService_RemoveWorkflow_Handler(srv interface{}, ctx context.Contex
 }
 
 func _WorkflowService_RemoveWorkflowVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdRequest)
+	in := new(IdAndWorkflowIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -728,7 +728,7 @@ func _WorkflowService_RemoveWorkflowVersion_Handler(srv interface{}, ctx context
 		FullMethod: WorkflowService_RemoveWorkflowVersion_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkflowServiceServer).RemoveWorkflowVersion(ctx, req.(*IdRequest))
+		return srv.(WorkflowServiceServer).RemoveWorkflowVersion(ctx, req.(*IdAndWorkflowIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -770,7 +770,7 @@ func _WorkflowService_CloneWorkflow_Handler(srv interface{}, ctx context.Context
 }
 
 func _WorkflowService_SaveWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Workflow)
+	in := new(SaveWorkflowReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -782,7 +782,7 @@ func _WorkflowService_SaveWorkflow_Handler(srv interface{}, ctx context.Context,
 		FullMethod: WorkflowService_SaveWorkflow_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkflowServiceServer).SaveWorkflow(ctx, req.(*Workflow))
+		return srv.(WorkflowServiceServer).SaveWorkflow(ctx, req.(*SaveWorkflowReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
