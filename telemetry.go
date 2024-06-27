@@ -14,6 +14,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
+	"log"
 )
 
 type Telemetry struct {
@@ -25,7 +26,7 @@ type Telemetry struct {
 func NewTelemetry() *Telemetry {
 	serviceName := util.GetEnv("OTEL_JAEGER_SERVICE_NAME", false, "", false)
 	if serviceName == "" {
-		logger.Warn("env 'OTEL_JAEGER_SERVICE_NAME' not found")
+		log.Println("WARNING: env 'OTEL_JAEGER_SERVICE_NAME' not found")
 	}
 	tp := newTracerProvider(serviceName)
 
