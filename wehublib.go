@@ -95,7 +95,7 @@ func NewServer() *server {
 	return &server{
 		grpcPort:     util.GetEnv("GRPC_PORT", true, "6852", false),
 		httpPort:     util.GetEnv("HTTP_PORT", true, "3000", false),
-		jwtAuthFunc:  DefaultAuthFunc,
+		jwtAuthFunc:  DefaultGrpcJwtAuthFunc,
 		recoveryFunc: defaultRecoveryFunc,
 	}
 }
@@ -318,7 +318,7 @@ var (
 		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
 	}
 
-	DefaultAuthFunc = func(ctx context.Context) (context.Context, error) {
+	DefaultGrpcJwtAuthFunc = func(ctx context.Context) (context.Context, error) {
 		token, err := grpcAuth.AuthFromMD(ctx, "bearer")
 		if err != nil {
 			return nil, err
@@ -360,7 +360,7 @@ var (
 		return ctx, nil
 	}
 
-	JwtAuthMiddleware = func(c *fiber.Ctx) error {
+	DefaultRestJwtAuthMiddleware = func(c *fiber.Ctx) error {
 		token := c.Get("Authorization")
 		if token == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

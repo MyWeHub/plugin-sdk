@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 )
@@ -41,9 +42,13 @@ func GetEnv(name string, validatePort bool, def string, mandatory bool) string {
 	return ""
 }
 
-func getContextData(ctx context.Context) (*string, bool) {
-	clientId := ctx.Value("clientId").(string)
-	superAdmin := ctx.Value("superAdmin").(bool)
-
-	return &clientId, superAdmin
+func GetClientID(ctx context.Context) string {
+	if clientId := ctx.Value("clientId"); clientId != nil {
+		if stClientID, ok := clientId.(string); ok {
+			return stClientID
+		} else if !ok {
+			log.Println("Error: clientID is not a string")
+		}
+	}
+	return ""
 }
