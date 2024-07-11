@@ -24,9 +24,9 @@ type Telemetry struct {
 }
 
 func NewTelemetry() *Telemetry {
-	serviceName := util.GetEnv("OTEL_JAEGER_SERVICE_NAME", false, "", false)
+	serviceName := util.GetEnv("PLUGIN_NAME", false, "", false)
 	if serviceName == "" {
-		log.Println("WARNING: env 'OTEL_JAEGER_SERVICE_NAME' not found")
+		log.Println("WARNING: env 'PLUGIN_NAME' not found")
 	}
 	tp := newTracerProvider(serviceName)
 
