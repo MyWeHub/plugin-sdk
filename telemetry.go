@@ -8,7 +8,7 @@ import (
 	"github.com/MyWeHub/plugin-sdk/util"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	traceSDK "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
@@ -61,7 +61,7 @@ func (t *Telemetry) SyncLogger() error {
 }
 
 func newTracerProvider(serviceName string) *traceSDK.TracerProvider {
-	exporter, err := jaeger.New(jaeger.WithAgentEndpoint())
+	exporter, err := stdouttrace.New()
 	if err != nil {
 		panic(err)
 	}
