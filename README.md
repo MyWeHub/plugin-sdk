@@ -237,3 +237,13 @@ func TestRunTestV2(t *testing.T) {
 	fmt.Println(res)
 }
 ```
+
+#Making Changes
+If you want to modify the SDK without creating a pull request, please follow these instructions:
+
+1. Pull the latest changes
+2. Make your changes
+3. Commit and push your changes
+4. Use this command to create a new tag (semantic versioning; please increment the previous version by one): ```git tag -a "vX.X.X" -m "your commit message"```
+5. Push the new version tag: ```git push origin vX.X.X```
+6. go to the GitHub page of the SDK (https://github.com/MyWeHub/plugin-sdk) and create a new release with the tag that you just created and pushed (vX.X.X) 
