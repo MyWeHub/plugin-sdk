@@ -4,11 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+
 	pbEP "github.com/MyWeHub/plugin-sdk/gen/entrypointService"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
 	"github.com/MyWeHub/plugin-sdk/nats"
 	"github.com/MyWeHub/plugin-sdk/util"
-	"github.com/amsokol/mongo-go-driver-protobuf/pmongo"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -20,7 +27,6 @@ import (
 	grpcTags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	grpcOtel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -29,12 +35,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 // TODO: write unit tests!
@@ -95,7 +95,7 @@ func NewServer() *server {
 	return &server{
 		grpcPort:     util.GetEnv("GRPC_PORT", true, "6852", false),
 		httpPort:     util.GetEnv("HTTP_PORT", true, "3000", false),
-		jwtAuthFunc:  defaultAuthFunc,
+		jwtAuthFunc:  DefaultGrpcJwtAuthFunc,
 		recoveryFunc: defaultRecoveryFunc,
 	}
 }
@@ -318,7 +318,7 @@ var (
 		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
 	}
 
-	defaultAuthFunc = func(ctx context.Context) (context.Context, error) {
+	DefaultGrpcJwtAuthFunc = func(ctx context.Context) (context.Context, error) {
 		token, err := grpcAuth.AuthFromMD(ctx, "bearer")
 		if err != nil {
 			return nil, err
@@ -341,15 +341,8 @@ var (
 				return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: ClientID is empty")
 			}
 
-			oid, err := primitive.ObjectIDFromHex(clientID.(string))
-			if err != nil {
-				return nil, status.Errorf(codes.Unauthenticated, "convert string clientID to ObjectID: %s", err)
-				//log.Println("convert string clientID to ObjectID:", err)
-			}
-			poid := pmongo.NewObjectId(oid)
-
 			grpcTags.Extract(ctx).Set("auth.clientId", clientID)
-			ctx = context.WithValue(ctx, "clientId", poid)
+			ctx = context.WithValue(ctx, "clientId", clientID)
 		} else {
 			return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: no ClientID found")
 			//ctx = context.WithValue(ctx, "clientId", &pmongo.ObjectId{})
@@ -365,5 +358,45 @@ var (
 		grpcTags.Extract(ctx).Set("auth.sub", claims)
 
 		return ctx, nil
+	}
+
+	DefaultRestJwtAuthMiddleware = func(c *fiber.Ctx) error {
+		token := c.Get("Authorization")
+		if token == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Missing token",
+			})
+		}
+
+		token = strings.TrimPrefix(token, "Bearer ")
+
+		claims := jwt.MapClaims{}
+		parser := jwt.Parser{}
+		tkn, _, err := parser.ParseUnverified(token, claims)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": fmt.Errorf("Invalid token: " + err.Error()),
+			})
+		}
+
+		if clientId, ok := claims["extension_clientid"]; !ok {
+			if superAdmin, ok := claims["extension_superAdmin"]; !ok {
+				if superAdmin.(bool) == true {
+					c.Locals("auth.superAdmin", superAdmin)
+					c.Locals("superAdmin", superAdmin)
+				}
+			} else {
+				c.Locals("superAdmin", false)
+			}
+		} else {
+			c.Locals("auth.clientId", clientId)
+			c.Locals("clientId", clientId)
+			c.Locals("superAdmin", false)
+		}
+
+		c.Locals("auth.sub", claims)
+		c.Locals("tokenInfo", tkn)
+
+		return c.Next()
 	}
 )

@@ -3,7 +3,7 @@ package util
 import (
 	"context"
 	"fmt"
-	"github.com/amsokol/mongo-go-driver-protobuf/pmongo"
+	"log"
 	"os"
 	"strconv"
 )
@@ -42,9 +42,13 @@ func GetEnv(name string, validatePort bool, def string, mandatory bool) string {
 	return ""
 }
 
-func getContextData(ctx context.Context) (clientId *pmongo.ObjectId, superAdmin bool) {
-	clientId = ctx.Value("clientId").(*pmongo.ObjectId)
-	superAdmin = ctx.Value("superAdmin").(bool)
-
-	return clientId, superAdmin
+func GetClientID(ctx context.Context) string {
+	if clientId := ctx.Value("clientId"); clientId != nil {
+		if stClientID, ok := clientId.(string); ok {
+			return stClientID
+		} else if !ok {
+			log.Println("Error: clientID is not a string")
+		}
+	}
+	return ""
 }
