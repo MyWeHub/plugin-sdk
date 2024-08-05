@@ -5,6 +5,7 @@ import (
 	apimanagement "github.com/MyWeHub/plugin-sdk/apiManagement"
 	"github.com/MyWeHub/plugin-sdk/connectionService"
 	"github.com/MyWeHub/plugin-sdk/nats"
+	"github.com/MyWeHub/plugin-sdk/organization"
 	"github.com/MyWeHub/plugin-sdk/util"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
@@ -36,6 +37,7 @@ func NewTelemetry() *Telemetry {
 	nats.SetTelemetry(logger, tracer)
 	connectionService.SetTelemetry(logger, tracer)
 	apimanagement.SetTelemetry(logger, tracer)
+	organization.SetTelemetry(logger, tracer)
 
 	return &Telemetry{
 		logger: logger,
