@@ -23,8 +23,8 @@ const (
 )
 
 type Organization struct {
-	conn   *grpc.ClientConn
-	client pbsc.ConnectionServiceClient
+	conn *grpc.ClientConn
+	pbsc.ConnectionServiceClient
 }
 
 type Options struct {
@@ -59,8 +59,8 @@ func New(ctx context.Context, opts ...*Options) (*Organization, context.Context,
 	client := pbsc.NewConnectionServiceClient(conn)
 
 	return &Organization{
-		conn:   conn,
-		client: client,
+		ConnectionServiceClient: client,
+		conn:                    conn,
 	}, orgCtx, nil
 }
 
