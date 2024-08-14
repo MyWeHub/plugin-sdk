@@ -19,13 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ConnectionService_Create_FullMethodName               = "/serviceConnection.ConnectionService/Create"
-	ConnectionService_Get_FullMethodName                  = "/serviceConnection.ConnectionService/Get"
-	ConnectionService_GetConnectionsIdList_FullMethodName = "/serviceConnection.ConnectionService/GetConnectionsIdList"
-	ConnectionService_Delete_FullMethodName               = "/serviceConnection.ConnectionService/Delete"
-	ConnectionService_List_FullMethodName                 = "/serviceConnection.ConnectionService/List"
-	ConnectionService_Update_FullMethodName               = "/serviceConnection.ConnectionService/Update"
-	ConnectionService_GetWithJWT_FullMethodName           = "/serviceConnection.ConnectionService/GetWithJWT"
+	ConnectionService_Create_FullMethodName                    = "/serviceConnection.ConnectionService/Create"
+	ConnectionService_Get_FullMethodName                       = "/serviceConnection.ConnectionService/Get"
+	ConnectionService_GetConnectionsIdList_FullMethodName      = "/serviceConnection.ConnectionService/GetConnectionsIdList"
+	ConnectionService_Delete_FullMethodName                    = "/serviceConnection.ConnectionService/Delete"
+	ConnectionService_List_FullMethodName                      = "/serviceConnection.ConnectionService/List"
+	ConnectionService_Update_FullMethodName                    = "/serviceConnection.ConnectionService/Update"
+	ConnectionService_ListConnectionsByFolderId_FullMethodName = "/serviceConnection.ConnectionService/ListConnectionsByFolderId"
+	ConnectionService_GetWithJWT_FullMethodName                = "/serviceConnection.ConnectionService/GetWithJWT"
+	ConnectionService_CreateFolder_FullMethodName              = "/serviceConnection.ConnectionService/CreateFolder"
+	ConnectionService_SaveFolder_FullMethodName                = "/serviceConnection.ConnectionService/SaveFolder"
+	ConnectionService_FolderByID_FullMethodName                = "/serviceConnection.ConnectionService/FolderByID"
+	ConnectionService_RemoveFolder_FullMethodName              = "/serviceConnection.ConnectionService/RemoveFolder"
+	ConnectionService_MoveFolder_FullMethodName                = "/serviceConnection.ConnectionService/MoveFolder"
+	ConnectionService_ListFolders_FullMethodName               = "/serviceConnection.ConnectionService/ListFolders"
+	ConnectionService_EditFolder_FullMethodName                = "/serviceConnection.ConnectionService/EditFolder"
 )
 
 // ConnectionServiceClient is the client API for ConnectionService service.
@@ -38,7 +46,15 @@ type ConnectionServiceClient interface {
 	Delete(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*IdMessage, error)
 	List(ctx context.Context, in *ListConnectionRequest, opts ...grpc.CallOption) (*ListConnectionResponse, error)
 	Update(ctx context.Context, in *UpdateConnectionsMessage, opts ...grpc.CallOption) (*ConnectionsMessage, error)
+	ListConnectionsByFolderId(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*ListConnectionResponse, error)
 	GetWithJWT(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*ConnectionsMessage, error)
+	CreateFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Folder, error)
+	SaveFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Folder, error)
+	FolderByID(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*Folder, error)
+	RemoveFolder(ctx context.Context, in *RemoveFolderRequest, opts ...grpc.CallOption) (*Empty, error)
+	MoveFolder(ctx context.Context, in *MoveFolderRequest, opts ...grpc.CallOption) (*Empty, error)
+	ListFolders(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListFolderResponse, error)
+	EditFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type connectionServiceClient struct {
@@ -103,9 +119,81 @@ func (c *connectionServiceClient) Update(ctx context.Context, in *UpdateConnecti
 	return out, nil
 }
 
+func (c *connectionServiceClient) ListConnectionsByFolderId(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*ListConnectionResponse, error) {
+	out := new(ListConnectionResponse)
+	err := c.cc.Invoke(ctx, ConnectionService_ListConnectionsByFolderId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *connectionServiceClient) GetWithJWT(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*ConnectionsMessage, error) {
 	out := new(ConnectionsMessage)
 	err := c.cc.Invoke(ctx, ConnectionService_GetWithJWT_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) CreateFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Folder, error) {
+	out := new(Folder)
+	err := c.cc.Invoke(ctx, ConnectionService_CreateFolder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) SaveFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Folder, error) {
+	out := new(Folder)
+	err := c.cc.Invoke(ctx, ConnectionService_SaveFolder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) FolderByID(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*Folder, error) {
+	out := new(Folder)
+	err := c.cc.Invoke(ctx, ConnectionService_FolderByID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) RemoveFolder(ctx context.Context, in *RemoveFolderRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, ConnectionService_RemoveFolder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) MoveFolder(ctx context.Context, in *MoveFolderRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, ConnectionService_MoveFolder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) ListFolders(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListFolderResponse, error) {
+	out := new(ListFolderResponse)
+	err := c.cc.Invoke(ctx, ConnectionService_ListFolders_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectionServiceClient) EditFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, ConnectionService_EditFolder_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +210,15 @@ type ConnectionServiceServer interface {
 	Delete(context.Context, *IdMessage) (*IdMessage, error)
 	List(context.Context, *ListConnectionRequest) (*ListConnectionResponse, error)
 	Update(context.Context, *UpdateConnectionsMessage) (*ConnectionsMessage, error)
+	ListConnectionsByFolderId(context.Context, *IdMessage) (*ListConnectionResponse, error)
 	GetWithJWT(context.Context, *IdMessage) (*ConnectionsMessage, error)
+	CreateFolder(context.Context, *Folder) (*Folder, error)
+	SaveFolder(context.Context, *Folder) (*Folder, error)
+	FolderByID(context.Context, *IdMessage) (*Folder, error)
+	RemoveFolder(context.Context, *RemoveFolderRequest) (*Empty, error)
+	MoveFolder(context.Context, *MoveFolderRequest) (*Empty, error)
+	ListFolders(context.Context, *Empty) (*ListFolderResponse, error)
+	EditFolder(context.Context, *Folder) (*Empty, error)
 	mustEmbedUnimplementedConnectionServiceServer()
 }
 
@@ -148,8 +244,32 @@ func (UnimplementedConnectionServiceServer) List(context.Context, *ListConnectio
 func (UnimplementedConnectionServiceServer) Update(context.Context, *UpdateConnectionsMessage) (*ConnectionsMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
+func (UnimplementedConnectionServiceServer) ListConnectionsByFolderId(context.Context, *IdMessage) (*ListConnectionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListConnectionsByFolderId not implemented")
+}
 func (UnimplementedConnectionServiceServer) GetWithJWT(context.Context, *IdMessage) (*ConnectionsMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWithJWT not implemented")
+}
+func (UnimplementedConnectionServiceServer) CreateFolder(context.Context, *Folder) (*Folder, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFolder not implemented")
+}
+func (UnimplementedConnectionServiceServer) SaveFolder(context.Context, *Folder) (*Folder, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveFolder not implemented")
+}
+func (UnimplementedConnectionServiceServer) FolderByID(context.Context, *IdMessage) (*Folder, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FolderByID not implemented")
+}
+func (UnimplementedConnectionServiceServer) RemoveFolder(context.Context, *RemoveFolderRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveFolder not implemented")
+}
+func (UnimplementedConnectionServiceServer) MoveFolder(context.Context, *MoveFolderRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MoveFolder not implemented")
+}
+func (UnimplementedConnectionServiceServer) ListFolders(context.Context, *Empty) (*ListFolderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListFolders not implemented")
+}
+func (UnimplementedConnectionServiceServer) EditFolder(context.Context, *Folder) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditFolder not implemented")
 }
 func (UnimplementedConnectionServiceServer) mustEmbedUnimplementedConnectionServiceServer() {}
 
@@ -272,6 +392,24 @@ func _ConnectionService_Update_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ConnectionService_ListConnectionsByFolderId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).ListConnectionsByFolderId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_ListConnectionsByFolderId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).ListConnectionsByFolderId(ctx, req.(*IdMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ConnectionService_GetWithJWT_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdMessage)
 	if err := dec(in); err != nil {
@@ -286,6 +424,132 @@ func _ConnectionService_GetWithJWT_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConnectionServiceServer).GetWithJWT(ctx, req.(*IdMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_CreateFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Folder)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).CreateFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_CreateFolder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).CreateFolder(ctx, req.(*Folder))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_SaveFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Folder)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).SaveFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_SaveFolder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).SaveFolder(ctx, req.(*Folder))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_FolderByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).FolderByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_FolderByID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).FolderByID(ctx, req.(*IdMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_RemoveFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveFolderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).RemoveFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_RemoveFolder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).RemoveFolder(ctx, req.(*RemoveFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_MoveFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MoveFolderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).MoveFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_MoveFolder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).MoveFolder(ctx, req.(*MoveFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_ListFolders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).ListFolders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_ListFolders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).ListFolders(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectionService_EditFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Folder)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectionServiceServer).EditFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectionService_EditFolder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectionServiceServer).EditFolder(ctx, req.(*Folder))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -322,8 +586,40 @@ var ConnectionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ConnectionService_Update_Handler,
 		},
 		{
+			MethodName: "ListConnectionsByFolderId",
+			Handler:    _ConnectionService_ListConnectionsByFolderId_Handler,
+		},
+		{
 			MethodName: "GetWithJWT",
 			Handler:    _ConnectionService_GetWithJWT_Handler,
+		},
+		{
+			MethodName: "CreateFolder",
+			Handler:    _ConnectionService_CreateFolder_Handler,
+		},
+		{
+			MethodName: "SaveFolder",
+			Handler:    _ConnectionService_SaveFolder_Handler,
+		},
+		{
+			MethodName: "FolderByID",
+			Handler:    _ConnectionService_FolderByID_Handler,
+		},
+		{
+			MethodName: "RemoveFolder",
+			Handler:    _ConnectionService_RemoveFolder_Handler,
+		},
+		{
+			MethodName: "MoveFolder",
+			Handler:    _ConnectionService_MoveFolder_Handler,
+		},
+		{
+			MethodName: "ListFolders",
+			Handler:    _ConnectionService_ListFolders_Handler,
+		},
+		{
+			MethodName: "EditFolder",
+			Handler:    _ConnectionService_EditFolder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
