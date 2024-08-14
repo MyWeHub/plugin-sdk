@@ -7,6 +7,7 @@
 package schema
 
 import (
+	auditlog "github.com/MyWeHub/plugin-sdk/gen/auditlog"
 	_ "github.com/amsokol/protoc-gen-gotag/tagger"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -14,7 +15,6 @@ import (
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
 	reflect "reflect"
 	sync "sync"
-	auditlog "weconnect.com/auditlog"
 )
 
 const (

@@ -15,6 +15,7 @@ plugins:
      - MtestRunner/testRunner.proto=github.com/MyWeHub/plugin-sdk/gen/testRunner
      - MjwtProvider/jwtProvider.proto=github.com/MyWeHub/plugin-sdk/gen/jwtProvider
      - Mtransformation/transformation.proto=github.com/MyWeHub/plugin-sdk/gen/transformation
+     - Mauditlog/auditlog.proto=github.com/MyWeHub/plugin-sdk/gen/auditlog
    - name: go-grpc
      out: gen
      opt:
