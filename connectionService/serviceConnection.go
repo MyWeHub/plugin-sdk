@@ -272,6 +272,16 @@ func (cm *connectionMessage) ToSlack() (*pbsc.SlackConnection, error) {
 	return conn.SlackConnection, nil
 }
 
+func (cm *connectionMessage) ToBlobStorage() (*pbsc.BlobStorageConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_BlobStorageConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_BLOB_STORAGE))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_BLOB_STORAGE)
+	}
+
+	return conn.BlobStorageConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
