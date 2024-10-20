@@ -9,6 +9,7 @@ plugins:
      - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin-sdk/gen/pluginrunner
      - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
      - Mworkflow/workflow.proto=github.com/MyWeHub/plugin-sdk/gen/workflow
+     - Mworkflow/folder.proto=github.com/MyWeHub/plugin-sdk/gen/workflow
      - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
      - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
      - Mgraph/graph.proto=github.com/MyWeHub/plugin-sdk/gen/graph
@@ -23,6 +24,7 @@ plugins:
      - Mpluginrunner/pluginrunner.proto=github.com/MyWeHub/plugin-sdk/gen/pluginrunner
      - Mschema/schema.proto=github.com/MyWeHub/plugin-sdk/gen/schema
      - Mworkflow/workflow.proto=github.com/MyWeHub/plugin-sdk/gen/workflow
+     - Mworkflow/folder.proto=github.com/MyWeHub/plugin-sdk/gen/workflow
      - MserviceConnection/serviceConnection.proto=github.com/MyWeHub/plugin-sdk/gen/serviceConnection
      - MentrypointService/entrypointService.proto=github.com/MyWeHub/plugin-sdk/gen/entrypointService
      - Mgraph/graph.proto=github.com/MyWeHub/plugin-sdk/gen/graph

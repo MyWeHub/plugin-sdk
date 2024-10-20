@@ -8,7 +8,6 @@ package workflow
 
 import (
 	context "context"
-	workflow "github.com/MyWeHub/plugin-sdk/gen/workflow"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -35,11 +34,11 @@ const (
 type FolderServiceClient interface {
 	CreateFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Folder, error)
 	SaveFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Folder, error)
-	FolderByID(ctx context.Context, in *workflow.IdRequest, opts ...grpc.CallOption) (*Folder, error)
-	RemoveFolder(ctx context.Context, in *RemoveFolderRequest, opts ...grpc.CallOption) (*workflow.Empty, error)
-	MoveFolder(ctx context.Context, in *MoveFolderRequest, opts ...grpc.CallOption) (*workflow.Empty, error)
-	ListFolders(ctx context.Context, in *workflow.Empty, opts ...grpc.CallOption) (*ListFolderResponse, error)
-	EditFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*workflow.Empty, error)
+	FolderByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Folder, error)
+	RemoveFolder(ctx context.Context, in *RemoveFolderRequest, opts ...grpc.CallOption) (*Empty, error)
+	MoveFolder(ctx context.Context, in *MoveFolderRequest, opts ...grpc.CallOption) (*Empty, error)
+	ListFolders(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListFolderResponse, error)
+	EditFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type folderServiceClient struct {
@@ -70,7 +69,7 @@ func (c *folderServiceClient) SaveFolder(ctx context.Context, in *Folder, opts .
 	return out, nil
 }
 
-func (c *folderServiceClient) FolderByID(ctx context.Context, in *workflow.IdRequest, opts ...grpc.CallOption) (*Folder, error) {
+func (c *folderServiceClient) FolderByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Folder, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Folder)
 	err := c.cc.Invoke(ctx, FolderService_FolderByID_FullMethodName, in, out, cOpts...)
@@ -80,9 +79,9 @@ func (c *folderServiceClient) FolderByID(ctx context.Context, in *workflow.IdReq
 	return out, nil
 }
 
-func (c *folderServiceClient) RemoveFolder(ctx context.Context, in *RemoveFolderRequest, opts ...grpc.CallOption) (*workflow.Empty, error) {
+func (c *folderServiceClient) RemoveFolder(ctx context.Context, in *RemoveFolderRequest, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(workflow.Empty)
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, FolderService_RemoveFolder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -90,9 +89,9 @@ func (c *folderServiceClient) RemoveFolder(ctx context.Context, in *RemoveFolder
 	return out, nil
 }
 
-func (c *folderServiceClient) MoveFolder(ctx context.Context, in *MoveFolderRequest, opts ...grpc.CallOption) (*workflow.Empty, error) {
+func (c *folderServiceClient) MoveFolder(ctx context.Context, in *MoveFolderRequest, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(workflow.Empty)
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, FolderService_MoveFolder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -100,7 +99,7 @@ func (c *folderServiceClient) MoveFolder(ctx context.Context, in *MoveFolderRequ
 	return out, nil
 }
 
-func (c *folderServiceClient) ListFolders(ctx context.Context, in *workflow.Empty, opts ...grpc.CallOption) (*ListFolderResponse, error) {
+func (c *folderServiceClient) ListFolders(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListFolderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListFolderResponse)
 	err := c.cc.Invoke(ctx, FolderService_ListFolders_FullMethodName, in, out, cOpts...)
@@ -110,9 +109,9 @@ func (c *folderServiceClient) ListFolders(ctx context.Context, in *workflow.Empt
 	return out, nil
 }
 
-func (c *folderServiceClient) EditFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*workflow.Empty, error) {
+func (c *folderServiceClient) EditFolder(ctx context.Context, in *Folder, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(workflow.Empty)
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, FolderService_EditFolder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -126,11 +125,11 @@ func (c *folderServiceClient) EditFolder(ctx context.Context, in *Folder, opts .
 type FolderServiceServer interface {
 	CreateFolder(context.Context, *Folder) (*Folder, error)
 	SaveFolder(context.Context, *Folder) (*Folder, error)
-	FolderByID(context.Context, *workflow.IdRequest) (*Folder, error)
-	RemoveFolder(context.Context, *RemoveFolderRequest) (*workflow.Empty, error)
-	MoveFolder(context.Context, *MoveFolderRequest) (*workflow.Empty, error)
-	ListFolders(context.Context, *workflow.Empty) (*ListFolderResponse, error)
-	EditFolder(context.Context, *Folder) (*workflow.Empty, error)
+	FolderByID(context.Context, *IdRequest) (*Folder, error)
+	RemoveFolder(context.Context, *RemoveFolderRequest) (*Empty, error)
+	MoveFolder(context.Context, *MoveFolderRequest) (*Empty, error)
+	ListFolders(context.Context, *Empty) (*ListFolderResponse, error)
+	EditFolder(context.Context, *Folder) (*Empty, error)
 	mustEmbedUnimplementedFolderServiceServer()
 }
 
@@ -147,19 +146,19 @@ func (UnimplementedFolderServiceServer) CreateFolder(context.Context, *Folder) (
 func (UnimplementedFolderServiceServer) SaveFolder(context.Context, *Folder) (*Folder, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveFolder not implemented")
 }
-func (UnimplementedFolderServiceServer) FolderByID(context.Context, *workflow.IdRequest) (*Folder, error) {
+func (UnimplementedFolderServiceServer) FolderByID(context.Context, *IdRequest) (*Folder, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FolderByID not implemented")
 }
-func (UnimplementedFolderServiceServer) RemoveFolder(context.Context, *RemoveFolderRequest) (*workflow.Empty, error) {
+func (UnimplementedFolderServiceServer) RemoveFolder(context.Context, *RemoveFolderRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveFolder not implemented")
 }
-func (UnimplementedFolderServiceServer) MoveFolder(context.Context, *MoveFolderRequest) (*workflow.Empty, error) {
+func (UnimplementedFolderServiceServer) MoveFolder(context.Context, *MoveFolderRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MoveFolder not implemented")
 }
-func (UnimplementedFolderServiceServer) ListFolders(context.Context, *workflow.Empty) (*ListFolderResponse, error) {
+func (UnimplementedFolderServiceServer) ListFolders(context.Context, *Empty) (*ListFolderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFolders not implemented")
 }
-func (UnimplementedFolderServiceServer) EditFolder(context.Context, *Folder) (*workflow.Empty, error) {
+func (UnimplementedFolderServiceServer) EditFolder(context.Context, *Folder) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditFolder not implemented")
 }
 func (UnimplementedFolderServiceServer) mustEmbedUnimplementedFolderServiceServer() {}
@@ -220,7 +219,7 @@ func _FolderService_SaveFolder_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _FolderService_FolderByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(workflow.IdRequest)
+	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -232,7 +231,7 @@ func _FolderService_FolderByID_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: FolderService_FolderByID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FolderServiceServer).FolderByID(ctx, req.(*workflow.IdRequest))
+		return srv.(FolderServiceServer).FolderByID(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -274,7 +273,7 @@ func _FolderService_MoveFolder_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _FolderService_ListFolders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(workflow.Empty)
+	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -286,7 +285,7 @@ func _FolderService_ListFolders_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: FolderService_ListFolders_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FolderServiceServer).ListFolders(ctx, req.(*workflow.Empty))
+		return srv.(FolderServiceServer).ListFolders(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

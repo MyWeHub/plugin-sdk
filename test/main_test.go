@@ -32,7 +32,7 @@ func TestCS(t *testing.T) {
 
 	defer c.Close()
 
-	connection, err := c.GetConnection(testingLib.AppendInterceptorTestToken(ctx), "")
+	connection, err := c.GetConnection(testingLib.AppendInterceptorTestToken(ctx), "asd")
 	if err != nil {
 		t.Fatal(err)
 	}
