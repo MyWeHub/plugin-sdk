@@ -25,7 +25,7 @@ type Telemetry struct {
 }
 
 func NewTelemetry() *Telemetry {
-	serviceName := util.GetEnv("PLUGIN_NAME", false, "", false)
+	serviceName := util.GetEnv("PLUGIN_NAME", false, "PLUGIN_NAME", false)
 	if serviceName == "" {
 		log.Println("WARNING: env 'PLUGIN_NAME' not found")
 	}

@@ -2,7 +2,6 @@ package wehublib
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
 	"github.com/MyWeHub/plugin-sdk/util"
@@ -20,14 +19,10 @@ const (
 	RunTestV2 = "RunTestV2"
 )
 
-var pluginName = util.GetEnv("PLUGIN_NAME", false, "", true)
+var pluginName = util.GetEnv("PLUGIN_NAME", false, "PLUGIN_NAME", false)
 
 func (s *grpcServer) RunTestv2(ctx context.Context, input *pb.InputTestRequestV2) (*pb.InputTestResponseV2, error) {
 	ctx = context.WithValue(ctx, RunType, RunTestV2)
-
-	if input.Inputs == nil {
-		return nil, status.Convert(errors.New("input is empty")).Err()
-	}
 
 	workflowData := ""
 	if input.NodeId != nil {
