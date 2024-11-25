@@ -282,6 +282,16 @@ func (cm *connectionMessage) ToBlobStorage() (*pbsc.BlobStorageConnection, error
 	return conn.BlobStorageConnection, nil
 }
 
+func (cm *connectionMessage) ToDynamoDB() (*pbsc.DynamoDBConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_DynamoDBConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_DYNAMODB))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_DYNAMODB)
+	}
+
+	return conn.DynamoDBConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
