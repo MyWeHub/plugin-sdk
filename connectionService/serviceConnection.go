@@ -292,6 +292,16 @@ func (cm *connectionMessage) ToDynamoDB() (*pbsc.DynamoDBConnection, error) {
 	return conn.DynamoDBConnection, nil
 }
 
+func (cm *connectionMessage) ToSNS() (*pbsc.SNSConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SnsConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SNS))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_SNS)
+	}
+
+	return conn.SnsConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
