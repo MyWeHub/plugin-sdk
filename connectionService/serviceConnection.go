@@ -302,6 +302,16 @@ func (cm *connectionMessage) ToSNS() (*pbsc.SNSConnection, error) {
 	return conn.SnsConnection, nil
 }
 
+func (cm *connectionMessage) ToSQS() (*pbsc.SQSConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SqsConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SQS))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_SQS)
+	}
+
+	return conn.SqsConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
