@@ -16,3 +16,6 @@ directories:
   - proto/common/transformation
   - proto/common/auditlog
   - proto/common/vendor
+  - proto/common/parser
+  - proto/common/dashboard
+  - proto/common/monitoring

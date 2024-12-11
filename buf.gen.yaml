@@ -17,6 +17,9 @@ plugins:
      - MjwtProvider/jwtProvider.proto=github.com/MyWeHub/plugin-sdk/gen/jwtProvider
      - Mtransformation/transformation.proto=github.com/MyWeHub/plugin-sdk/gen/transformation
      - Mauditlog/auditlog.proto=github.com/MyWeHub/plugin-sdk/gen/auditlog
+     - Mdashboard/dashboard.proto=github.com/MyWeHub/plugin-sdk/gen/dashboard
+     - Mparser/parser.proto=github.com/MyWeHub/plugin-sdk/gen/parser
+     - Mmonitoring/monitoring.proto=github.com/MyWeHub/plugin-sdk/gen/monitoring
    - name: go-grpc
      out: gen
      opt:
@@ -32,6 +35,9 @@ plugins:
      - MjwtProvider/jwtProvider.proto=github.com/MyWeHub/plugin-sdk/gen/jwtProvider
      - Mtransformation/transformation.proto=github.com/MyWeHub/plugin-sdk/gen/transformation
      - Mauditlog/auditlog.proto=github.com/MyWeHub/plugin-sdk/gen/auditlog
+     - Mdashboard/dashboard.proto=github.com/MyWeHub/plugin-sdk/gen/dashboard
+     - Mparser/parser.proto=github.com/MyWeHub/plugin-sdk/gen/parser
+     - Mmonitoring/monitoring.proto=github.com/MyWeHub/plugin-sdk/gen/monitoring
 # - name: ts
 #   out: ui/src/proto
 #   opt: force_optimize_code_size
