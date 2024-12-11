@@ -19,3 +19,4 @@ directories:
   - proto/common/parser
   - proto/common/dashboard
   - proto/common/monitoring
+  - proto/common/organization
