@@ -312,6 +312,16 @@ func (cm *connectionMessage) ToSQS() (*pbsc.SQSConnection, error) {
 	return conn.SqsConnection, nil
 }
 
+func (cm *connectionMessage) ToSecretManager() (*pbsc.SecretManagerConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SecretManagerConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SECRET_MANAGER))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_SECRET_MANAGER)
+	}
+
+	return conn.SecretManagerConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
