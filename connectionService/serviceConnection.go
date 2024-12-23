@@ -312,14 +312,14 @@ func (cm *connectionMessage) ToSQS() (*pbsc.SQSConnection, error) {
 	return conn.SqsConnection, nil
 }
 
-func (cm *connectionMessage) ToSecretManager() (*pbsc.SecretManagerConnection, error) {
-	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SecretManagerConnection)
+func (cm *connectionMessage) ToAWSSecretManager() (*pbsc.AWSSecretManagerConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_AwsSecretManagerConnection)
 	if !ok {
-		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SECRET_MANAGER))
-		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_SECRET_MANAGER)
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_AWS_SECRET_MANAGER))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_AWS_SECRET_MANAGER)
 	}
 
-	return conn.SecretManagerConnection, nil
+	return conn.AwsSecretManagerConnection, nil
 }
 
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
