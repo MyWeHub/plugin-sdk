@@ -322,6 +322,16 @@ func (cm *connectionMessage) ToAWSSecretManager() (*pbsc.AWSSecretManagerConnect
 	return conn.AwsSecretManagerConnection, nil
 }
 
+func (cm *connectionMessage) ToAzureKeyVault() (*pbsc.AzureKeyVaultConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_AzureKeyVaultConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_AZURE_KEY_VAULT))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_AZURE_KEY_VAULT)
+	}
+
+	return conn.AzureKeyVaultConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
