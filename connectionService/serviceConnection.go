@@ -332,6 +332,16 @@ func (cm *connectionMessage) ToAzureKeyVault() (*pbsc.AzureKeyVaultConnection, e
 	return conn.AzureKeyVaultConnection, nil
 }
 
+func (cm *connectionMessage) ToS3() (*pbsc.S3Connection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_S3Connection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_S3))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_S3)
+	}
+
+	return conn.S3Connection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
