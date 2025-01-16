@@ -1,5 +1,5 @@
-//go:build local_tranformation
-// +build local_tranformation
+//go:build local_transformation
+// +build local_transformation
 
 package nats
 
