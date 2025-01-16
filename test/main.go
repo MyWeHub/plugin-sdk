@@ -50,7 +50,7 @@ func main() {
 	defer t.SyncLogger()
 
 	//nats
-	n := nats.New(&schema.Schema{})
+	n := nats.New(&schema.IdRequest{})
 	defer n.Close()
 	n.Listen(ctx)
 
