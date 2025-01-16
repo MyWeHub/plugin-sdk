@@ -60,10 +60,10 @@ type server struct {
 type ServerOptions struct {
 	DisableHTTP      bool
 	GracefulShutdown bool
-	handlers         []*httpHandler
+	Handlers         []*HttpHandler
 }
 
-type httpHandler struct {
+type HttpHandler struct {
 	method  string
 	path    string
 	handler fiber.Handler
@@ -311,7 +311,7 @@ func (s *server) ServeTest(lis net.Listener) error {
 	return s.GrpcServer.Serve(lis)
 }
 
-func (s *server) serveHTTP(handlers ...*httpHandler) {
+func (s *server) serveHTTP(handlers ...*HttpHandler) {
 	s.httpServer = fiber.New()
 
 	if handlers != nil && len(handlers) > 0 {
