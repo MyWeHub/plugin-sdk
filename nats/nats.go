@@ -1,3 +1,5 @@
+//go:build !local_tranformation
+
 package nats
 
 import (
