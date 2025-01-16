@@ -49,7 +49,7 @@ var (
 )
 
 type server struct {
-	HttpServer   *fiber.App
+	httpServer   *fiber.App
 	GrpcServer   *grpc.Server
 	grpcPort     string
 	httpPort     string
@@ -60,6 +60,13 @@ type server struct {
 type ServerOptions struct {
 	DisableHTTP      bool
 	GracefulShutdown bool
+	handlers         []*httpHandler
+}
+
+type httpHandler struct {
+	method  string
+	path    string
+	handler fiber.Handler
 }
 
 type GRPCOptions struct {
@@ -304,14 +311,32 @@ func (s *server) ServeTest(lis net.Listener) error {
 	return s.GrpcServer.Serve(lis)
 }
 
-func (s *server) serveHTTP() {
-	s.HttpServer = fiber.New()
-	s.HttpServer.Use(compress.New())
-	s.HttpServer.Static("/", "/go/bin/public", fiber.Static{Compress: true})
+func (s *server) serveHTTP(handlers ...*httpHandler) {
+	s.httpServer = fiber.New()
+
+	if handlers != nil && len(handlers) > 0 {
+		for _, handler := range handlers {
+			switch handler.method {
+			case http.MethodGet:
+				s.httpServer.Get(handler.path, handler.handler)
+			case http.MethodPost:
+				s.httpServer.Post(handler.path, handler.handler)
+			case http.MethodPut:
+				s.httpServer.Put(handler.path, handler.handler)
+			case http.MethodPatch:
+				s.httpServer.Patch(handler.path, handler.handler)
+			case http.MethodDelete:
+				s.httpServer.Delete(handler.path, handler.handler)
+			}
+		}
+	}
+
+	s.httpServer.Use(compress.New())
+	s.httpServer.Static("/", "/go/bin/public", fiber.Static{Compress: true})
 	http.Handle("/metrics", promhttp.Handler())
-	s.HttpServer.Use(pprof.New())
+	s.httpServer.Use(pprof.New())
 	go http.ListenAndServe(":2112", nil)
-	go s.HttpServer.Listen(fmt.Sprintf(":%s", s.httpPort))
+	go s.httpServer.Listen(fmt.Sprintf(":%s", s.httpPort))
 }
 
 var (
