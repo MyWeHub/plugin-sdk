@@ -64,9 +64,9 @@ type ServerOptions struct {
 }
 
 type HttpHandler struct {
-	method  string
-	path    string
-	handler fiber.Handler
+	Method  string
+	Path    string
+	Handler fiber.Handler
 }
 
 type GRPCOptions struct {
@@ -126,7 +126,7 @@ func (s *server) RegisterEntrypointServer(srv pbEP.EntrypointServiceServer) {
 
 func (s *server) GetGRPCServer() (*grpc.Server, error) {
 	if s.GrpcServer == nil {
-		return nil, errors.New("server is nil, please call this method after 'SetNewGRPC' method is called")
+		return nil, errors.New("server is nil, please call this Method after 'SetNewGRPC' Method is called")
 	}
 
 	return s.GrpcServer, nil
@@ -172,7 +172,7 @@ func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 	}
 	if x.ZapLoggerInterceptor {
 		if logger == nil {
-			panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
+			panic(errors.New("logger not set. please use 'SetLogger' Method before initializing server"))
 		}
 
 		unary = append(unary, grpcZap.UnaryServerInterceptor(logger))
@@ -209,7 +209,7 @@ func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 
 func (s *server) setDefaultGRPC() *server {
 	if logger == nil {
-		panic(errors.New("logger not set. please use 'SetLogger' method before initializing server"))
+		panic(errors.New("logger not set. please use 'SetLogger' Method before initializing server"))
 	}
 
 	recoveryOpts := []grpcRecovery.Option{
@@ -316,17 +316,17 @@ func (s *server) serveHTTP(handlers ...*HttpHandler) {
 
 	if handlers != nil && len(handlers) > 0 {
 		for _, handler := range handlers {
-			switch handler.method {
+			switch handler.Method {
 			case http.MethodGet:
-				s.httpServer.Get(handler.path, handler.handler)
+				s.httpServer.Get(handler.Path, handler.Handler)
 			case http.MethodPost:
-				s.httpServer.Post(handler.path, handler.handler)
+				s.httpServer.Post(handler.Path, handler.Handler)
 			case http.MethodPut:
-				s.httpServer.Put(handler.path, handler.handler)
+				s.httpServer.Put(handler.Path, handler.Handler)
 			case http.MethodPatch:
-				s.httpServer.Patch(handler.path, handler.handler)
+				s.httpServer.Patch(handler.Path, handler.Handler)
 			case http.MethodDelete:
-				s.httpServer.Delete(handler.path, handler.handler)
+				s.httpServer.Delete(handler.Path, handler.Handler)
 			}
 		}
 	}
