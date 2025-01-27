@@ -342,6 +342,16 @@ func (cm *connectionMessage) ToAwsS3() (*pbsc.AwsS3Connection, error) {
 	return conn.AwsS3Connection, nil
 }
 
+func (cm *connectionMessage) ToElasticsearch() (*pbsc.ElasticsearchConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_ElasticsearchConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_ELASTICSEARCH))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_ELASTICSEARCH)
+	}
+
+	return conn.ElasticsearchConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
