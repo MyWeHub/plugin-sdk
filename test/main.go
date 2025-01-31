@@ -31,7 +31,7 @@ func (s *service) IsConnectionServiceRequired() bool {
 	return false
 }
 
-func (s *service) SetConnectionService(cs *cs.IConnectionService) {
+func (s *service) SetConnectionService(cs cs.IConnectionService) {
 	return
 }
 

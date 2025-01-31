@@ -84,7 +84,7 @@ type GRPCOptions struct {
 type IProcess interface {
 	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*pb.InputTestResponseV2, error)
 	IsConnectionServiceRequired() bool
-	SetConnectionService(cs *cs.IConnectionService)
+	SetConnectionService(cs cs.IConnectionService)
 }
 
 type grpcServer struct {
