@@ -1,3 +1,5 @@
+//go:build !local_transformation
+
 package connectionService
 
 import (
@@ -41,7 +43,7 @@ func SetTelemetry(l *zap.Logger, t trace.Tracer) {
 	tracer = t
 }
 
-func New(ctx context.Context, opts ...*Options) (*ConnectionService, error) {
+func New(ctx context.Context, opts ...*Options) (IConnectionService, error) {
 	url := internalURL
 	if opts != nil && len(opts) > 0 {
 		switch {

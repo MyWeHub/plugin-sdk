@@ -46,7 +46,7 @@ func New(ctx context.Context, is IService, configType proto.Message) *testing {
 
 	server := wehublib.NewServer()
 	server.SetNewGRPC()
-	server.RegisterServer(nil, is, configType)
+	//server.RegisterServer(nil, is, configType)
 
 	go func() {
 		if err := server.ServeTest(lis); err != nil {

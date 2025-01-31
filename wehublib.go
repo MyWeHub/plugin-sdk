@@ -12,6 +12,7 @@ import (
 	"strings"
 	"syscall"
 
+	cs "github.com/MyWeHub/plugin-sdk/connectionService"
 	pbEP "github.com/MyWeHub/plugin-sdk/gen/entrypointService"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
 	"github.com/MyWeHub/plugin-sdk/nats"
@@ -82,6 +83,8 @@ type GRPCOptions struct {
 
 type IProcess interface {
 	Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*pb.InputTestResponseV2, error)
+	IsConnectionServiceRequired() bool
+	SetConnectionService(cs *cs.IConnectionService)
 }
 
 type grpcServer struct {
