@@ -354,6 +354,26 @@ func (cm *connectionMessage) ToElasticsearch() (*pbsc.ElasticsearchConnection, e
 	return conn.ElasticsearchConnection, nil
 }
 
+func (cm *connectionMessage) ToOpenAI() (*pbsc.OpenaiConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_OpenaiConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_OPENAI))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_OPENAI)
+	}
+
+	return conn.OpenaiConnection, nil
+}
+
+func (cm *connectionMessage) ToMSTeams() (*pbsc.MsteamsConnection, error) {
+	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_MsteamsConnection)
+	if !ok {
+		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_MS_TEAMS))
+		return nil, fmt.Errorf("service-connection: can't convert ConnectionOneOf to type '%v'", pbsc.ConnectionType_CONNECTION_MS_TEAMS)
+	}
+
+	return conn.MsteamsConnection, nil
+}
+
 func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
