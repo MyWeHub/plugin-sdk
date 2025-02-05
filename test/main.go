@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 	wehublib "github.com/MyWeHub/plugin-sdk"
+	cs "github.com/MyWeHub/plugin-sdk/connectionService"
 	pb "github.com/MyWeHub/plugin-sdk/gen/pluginrunner"
-	"github.com/MyWeHub/plugin-sdk/gen/schema"
 	"github.com/MyWeHub/plugin-sdk/nats"
+	testingLib "github.com/MyWeHub/plugin-sdk/testing"
 	goNats "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
+	"log"
 )
 
 var logger *zap.Logger
@@ -23,6 +25,14 @@ func newService() *service {
 
 func (s *service) Process(ctx context.Context, in *structpb.Struct, conf proto.Message, action int32, workflowData string) (*pb.InputTestResponseV2, error) {
 	return nil, nil
+}
+
+func (s *service) IsConnectionServiceRequired() bool {
+	return false
+}
+
+func (s *service) SetConnectionService(cs cs.IConnectionService) {
+	return
 }
 
 type cacher struct{}
@@ -50,7 +60,7 @@ func main() {
 	defer t.SyncLogger()
 
 	//nats
-	n := nats.New(&schema.IdRequest{})
+	/*n := nats.New(&schema.IdRequest{})
 	defer n.Close()
 	n.Listen(ctx)
 
@@ -60,9 +70,9 @@ func main() {
 		fmt.Println(node.WorkflowID)
 		//fmt.Println(node.DecodeConfig(nil))
 	}
-
+	*/
 	// connection service
-	/*ncs, err := cs.New(ctx, &cs.Options{ExternalRequest: true})
+	ncs, err := cs.New(ctx, &cs.Options{ExternalRequest: true})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,15 +88,15 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("mongoConnection")
-	fmt.Println(mongoConnection)*/
+	fmt.Println(mongoConnection)
 
 	// server
-	server := wehublib.NewServer()
+	/*server := wehublib.NewServer()
 	server.SetCustomGRPCPort("6666")
 	server.SetCustomHTTPPort("6667")
 	//server.SetCustomJwtHandler()
 	//server.SetCustomRecoveryHandler()
 	server.SetNewGRPC()
 	server.RegisterServer(n, newService(), &schema.Schema{})
-	server.Serve()
+	server.Serve()*/
 }
