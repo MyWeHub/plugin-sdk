@@ -1,5 +1,3 @@
-//go:build !local_transformation
-
 package connectionService
 
 import (
@@ -34,7 +32,7 @@ type Options struct {
 	ExternalRequest bool
 }
 
-type connectionMessage struct {
+type ConnectionMessage struct {
 	message *pbsc.ConnectionsMessage
 }
 
@@ -70,7 +68,7 @@ func (cs *ConnectionService) Close() error {
 	return cs.conn.Close()
 }
 
-func (cs *ConnectionService) GetConnection(ctx context.Context, id string) (*connectionMessage, error) {
+func (cs *ConnectionService) GetConnection(ctx context.Context, id string) (*ConnectionMessage, error) {
 	if cs.client == nil {
 		return nil, errors.New("service-connection client connection is empty")
 	}
@@ -86,10 +84,10 @@ func (cs *ConnectionService) GetConnection(ctx context.Context, id string) (*con
 		return nil, err
 	}
 
-	return &connectionMessage{message: res}, nil
+	return &ConnectionMessage{message: res}, nil
 }
 
-func (cs *ConnectionService) GetConnectionWithJWT(ctx context.Context, id string) (*connectionMessage, error) {
+func (cs *ConnectionService) GetConnectionWithJWT(ctx context.Context, id string) (*ConnectionMessage, error) {
 	if cs.client == nil {
 		return nil, errors.New("service-connection client connection is empty")
 	}
@@ -105,7 +103,7 @@ func (cs *ConnectionService) GetConnectionWithJWT(ctx context.Context, id string
 		return nil, err
 	}
 
-	return &connectionMessage{message: res}, nil
+	return &ConnectionMessage{message: res}, nil
 }
 
 func configureCtx(ctx context.Context) (context.Context, error) {
@@ -124,7 +122,7 @@ func configureCtx(ctx context.Context) (context.Context, error) {
 	return metadata.NewOutgoingContext(ctx, md), nil
 }
 
-func (cm *connectionMessage) ToSFTP() (*pbsc.SFTPConnection, error) {
+func (cm *ConnectionMessage) ToSFTP() (*pbsc.SFTPConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SftpConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SFTP))
@@ -134,7 +132,7 @@ func (cm *connectionMessage) ToSFTP() (*pbsc.SFTPConnection, error) {
 	return conn.SftpConnection, nil
 }
 
-func (cm *connectionMessage) ToMongo() (*pbsc.MongoConnection, error) {
+func (cm *ConnectionMessage) ToMongo() (*pbsc.MongoConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_MongoConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_MONGO))
@@ -144,7 +142,7 @@ func (cm *connectionMessage) ToMongo() (*pbsc.MongoConnection, error) {
 	return conn.MongoConnection, nil
 }
 
-func (cm *connectionMessage) ToAMQP() (*pbsc.AMQPConnection, error) {
+func (cm *ConnectionMessage) ToAMQP() (*pbsc.AMQPConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_AmqpConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_AMQP))
@@ -154,7 +152,7 @@ func (cm *connectionMessage) ToAMQP() (*pbsc.AMQPConnection, error) {
 	return conn.AmqpConnection, nil
 }
 
-func (cm *connectionMessage) ToKafka() (*pbsc.KafkaConnection, error) {
+func (cm *ConnectionMessage) ToKafka() (*pbsc.KafkaConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_KafkaConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_KAFKA))
@@ -164,7 +162,7 @@ func (cm *connectionMessage) ToKafka() (*pbsc.KafkaConnection, error) {
 	return conn.KafkaConnection, nil
 }
 
-func (cm *connectionMessage) ToHTTP() (*pbsc.HTTPConnection, error) {
+func (cm *ConnectionMessage) ToHTTP() (*pbsc.HTTPConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_HttpConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_HTTP))
@@ -174,7 +172,7 @@ func (cm *connectionMessage) ToHTTP() (*pbsc.HTTPConnection, error) {
 	return conn.HttpConnection, nil
 }
 
-func (cm *connectionMessage) ToRedis() (*pbsc.RedisConnection, error) {
+func (cm *ConnectionMessage) ToRedis() (*pbsc.RedisConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_RedisConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_REDIS))
@@ -184,7 +182,7 @@ func (cm *connectionMessage) ToRedis() (*pbsc.RedisConnection, error) {
 	return conn.RedisConnection, nil
 }
 
-func (cm *connectionMessage) ToTwilio() (*pbsc.TwilioConnection, error) {
+func (cm *ConnectionMessage) ToTwilio() (*pbsc.TwilioConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TwilioConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_TWILIO))
@@ -194,7 +192,7 @@ func (cm *connectionMessage) ToTwilio() (*pbsc.TwilioConnection, error) {
 	return conn.TwilioConnection, nil
 }
 
-func (cm *connectionMessage) ToSendgrid() (*pbsc.SendGridConnection, error) {
+func (cm *ConnectionMessage) ToSendgrid() (*pbsc.SendGridConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SendgridConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SENDGRID))
@@ -204,7 +202,7 @@ func (cm *connectionMessage) ToSendgrid() (*pbsc.SendGridConnection, error) {
 	return conn.SendgridConnection, nil
 }
 
-func (cm *connectionMessage) ToCosmosDB() (*pbsc.CosmosDBConnection, error) {
+func (cm *ConnectionMessage) ToCosmosDB() (*pbsc.CosmosDBConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_CosmosdbConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_COSMOSDB))
@@ -214,7 +212,7 @@ func (cm *connectionMessage) ToCosmosDB() (*pbsc.CosmosDBConnection, error) {
 	return conn.CosmosdbConnection, nil
 }
 
-func (cm *connectionMessage) ToMySQL() (*pbsc.MySQLConnection, error) {
+func (cm *ConnectionMessage) ToMySQL() (*pbsc.MySQLConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_MysqlConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_MYSQL))
@@ -224,7 +222,7 @@ func (cm *connectionMessage) ToMySQL() (*pbsc.MySQLConnection, error) {
 	return conn.MysqlConnection, nil
 }
 
-func (cm *connectionMessage) ToMSSQL() (*pbsc.MsSQLConnection, error) {
+func (cm *ConnectionMessage) ToMSSQL() (*pbsc.MsSQLConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_MssqlConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_MSSQL))
@@ -234,7 +232,7 @@ func (cm *connectionMessage) ToMSSQL() (*pbsc.MsSQLConnection, error) {
 	return conn.MssqlConnection, nil
 }
 
-func (cm *connectionMessage) ToPostgres() (*pbsc.PostgresConnection, error) {
+func (cm *ConnectionMessage) ToPostgres() (*pbsc.PostgresConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_PostgresConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_POSTGRES))
@@ -244,7 +242,7 @@ func (cm *connectionMessage) ToPostgres() (*pbsc.PostgresConnection, error) {
 	return conn.PostgresConnection, nil
 }
 
-func (cm *connectionMessage) ToCosmosdbTable() (*pbsc.CosmosDBTableConnection, error) {
+func (cm *ConnectionMessage) ToCosmosdbTable() (*pbsc.CosmosDBTableConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_CosmosdbTableConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_COSMOSDB_TABLE))
@@ -254,7 +252,7 @@ func (cm *connectionMessage) ToCosmosdbTable() (*pbsc.CosmosDBTableConnection, e
 	return conn.CosmosdbTableConnection, nil
 }
 
-func (cm *connectionMessage) ToCosmosdbNoSQL() (*pbsc.CosmosDBNoSQLConnection, error) {
+func (cm *ConnectionMessage) ToCosmosdbNoSQL() (*pbsc.CosmosDBNoSQLConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_CosmosdbNoSQLConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_COSMOSDB_NOSQL))
@@ -264,7 +262,7 @@ func (cm *connectionMessage) ToCosmosdbNoSQL() (*pbsc.CosmosDBNoSQLConnection, e
 	return conn.CosmosdbNoSQLConnection, nil
 }
 
-func (cm *connectionMessage) ToSlack() (*pbsc.SlackConnection, error) {
+func (cm *ConnectionMessage) ToSlack() (*pbsc.SlackConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SlackConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SLACK))
@@ -274,7 +272,7 @@ func (cm *connectionMessage) ToSlack() (*pbsc.SlackConnection, error) {
 	return conn.SlackConnection, nil
 }
 
-func (cm *connectionMessage) ToBlobStorage() (*pbsc.BlobStorageConnection, error) {
+func (cm *ConnectionMessage) ToBlobStorage() (*pbsc.BlobStorageConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_BlobStorageConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_BLOB_STORAGE))
@@ -284,7 +282,7 @@ func (cm *connectionMessage) ToBlobStorage() (*pbsc.BlobStorageConnection, error
 	return conn.BlobStorageConnection, nil
 }
 
-func (cm *connectionMessage) ToDynamoDB() (*pbsc.DynamoDBConnection, error) {
+func (cm *ConnectionMessage) ToDynamoDB() (*pbsc.DynamoDBConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_DynamoDBConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_DYNAMODB))
@@ -294,7 +292,7 @@ func (cm *connectionMessage) ToDynamoDB() (*pbsc.DynamoDBConnection, error) {
 	return conn.DynamoDBConnection, nil
 }
 
-func (cm *connectionMessage) ToSNS() (*pbsc.SNSConnection, error) {
+func (cm *ConnectionMessage) ToSNS() (*pbsc.SNSConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SnsConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SNS))
@@ -304,7 +302,7 @@ func (cm *connectionMessage) ToSNS() (*pbsc.SNSConnection, error) {
 	return conn.SnsConnection, nil
 }
 
-func (cm *connectionMessage) ToSQS() (*pbsc.SQSConnection, error) {
+func (cm *ConnectionMessage) ToSQS() (*pbsc.SQSConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_SqsConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_SQS))
@@ -314,7 +312,7 @@ func (cm *connectionMessage) ToSQS() (*pbsc.SQSConnection, error) {
 	return conn.SqsConnection, nil
 }
 
-func (cm *connectionMessage) ToAWSSecretManager() (*pbsc.AWSSecretManagerConnection, error) {
+func (cm *ConnectionMessage) ToAWSSecretManager() (*pbsc.AWSSecretManagerConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_AwsSecretManagerConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_AWS_SECRET_MANAGER))
@@ -324,7 +322,7 @@ func (cm *connectionMessage) ToAWSSecretManager() (*pbsc.AWSSecretManagerConnect
 	return conn.AwsSecretManagerConnection, nil
 }
 
-func (cm *connectionMessage) ToAzureKeyVault() (*pbsc.AzureKeyVaultConnection, error) {
+func (cm *ConnectionMessage) ToAzureKeyVault() (*pbsc.AzureKeyVaultConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_AzureKeyVaultConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_AZURE_KEY_VAULT))
@@ -334,7 +332,7 @@ func (cm *connectionMessage) ToAzureKeyVault() (*pbsc.AzureKeyVaultConnection, e
 	return conn.AzureKeyVaultConnection, nil
 }
 
-func (cm *connectionMessage) ToAwsS3() (*pbsc.AwsS3Connection, error) {
+func (cm *ConnectionMessage) ToAwsS3() (*pbsc.AwsS3Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_AwsS3Connection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_AWS_S3))
@@ -344,7 +342,7 @@ func (cm *connectionMessage) ToAwsS3() (*pbsc.AwsS3Connection, error) {
 	return conn.AwsS3Connection, nil
 }
 
-func (cm *connectionMessage) ToElasticsearch() (*pbsc.ElasticsearchConnection, error) {
+func (cm *ConnectionMessage) ToElasticsearch() (*pbsc.ElasticsearchConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_ElasticsearchConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_ELASTICSEARCH))
@@ -354,7 +352,7 @@ func (cm *connectionMessage) ToElasticsearch() (*pbsc.ElasticsearchConnection, e
 	return conn.ElasticsearchConnection, nil
 }
 
-func (cm *connectionMessage) ToOpenAI() (*pbsc.OpenaiConnection, error) {
+func (cm *ConnectionMessage) ToOpenAI() (*pbsc.OpenaiConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_OpenaiConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_OPENAI))
@@ -364,7 +362,7 @@ func (cm *connectionMessage) ToOpenAI() (*pbsc.OpenaiConnection, error) {
 	return conn.OpenaiConnection, nil
 }
 
-func (cm *connectionMessage) ToMSTeams() (*pbsc.MsteamsConnection, error) {
+func (cm *ConnectionMessage) ToMSTeams() (*pbsc.MsteamsConnection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_MsteamsConnection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_MS_TEAMS))
@@ -374,7 +372,7 @@ func (cm *connectionMessage) ToMSTeams() (*pbsc.MsteamsConnection, error) {
 	return conn.MsteamsConnection, nil
 }
 
-func (cm *connectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
+func (cm *ConnectionMessage) ToTCP_IP() (*pbsc.TCP_IP_Connection, error) {
 	conn, ok := cm.message.Connection.ConnectionOneof.(*pbsc.Connection_TcpIp_Connection)
 	if !ok {
 		logger.Error("service-connection: can't convert ConnectionOneOf", zap.Any("type", pbsc.ConnectionType_CONNECTION_TCP_IP))
