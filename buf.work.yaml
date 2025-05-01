@@ -20,3 +20,4 @@ directories:
   - proto/common/dashboard
   - proto/common/monitoring
   - proto/common/organization
+  - proto/common/terminology

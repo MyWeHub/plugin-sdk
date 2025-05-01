@@ -21,6 +21,7 @@ plugins:
      - Mparser/parser.proto=github.com/MyWeHub/plugin-sdk/gen/parser
      - Mmonitoring/monitoring.proto=github.com/MyWeHub/plugin-sdk/gen/monitoring
      - Morganization/organization.proto=github.com/MyWeHub/plugin-sdk/gen/organization
+     - Mterminology/terminology.proto=github.com/MyWeHub/plugin-sdk/gen/terminology
    - name: go-grpc
      out: gen
      opt:
@@ -40,6 +41,7 @@ plugins:
      - Mparser/parser.proto=github.com/MyWeHub/plugin-sdk/gen/parser
      - Mmonitoring/monitoring.proto=github.com/MyWeHub/plugin-sdk/gen/monitoring
      - Morganization/organization.proto=github.com/MyWeHub/plugin-sdk/gen/organization
+     - Mterminology/terminology.proto=github.com/MyWeHub/plugin-sdk/gen/terminology
 # - name: ts
 #   out: ui/src/proto
 #   opt: force_optimize_code_size
