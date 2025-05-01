@@ -29,7 +29,7 @@ func SetTelemetry(l *zap.Logger, t trace.Tracer) {
 }
 
 type Nats struct {
-	conn       *nats.EncodedConn
+	Conn       *nats.EncodedConn
 	Cache      map[string]*NodeConfig
 	ConfigType proto.Message
 	env        string
@@ -71,7 +71,7 @@ func New(configType proto.Message) *Nats {
 	}
 
 	return &Nats{
-		conn:       encodedConn,
+		Conn:       encodedConn,
 		Cache:      make(map[string]*NodeConfig),
 		ConfigType: configType,
 		env:        env,
@@ -105,7 +105,7 @@ func (n *Nats) Listen(ctx context.Context, opts ...*ListenerOptions) { // TODO: 
 	span.SetAttributes(attribute.String("topic", req))
 
 	natsConfigs := make([]NodeConfigNats, 0)
-	if err := n.conn.Request(req, "", &natsConfigs, 10*time.Second); err != nil {
+	if err := n.Conn.Request(req, "", &natsConfigs, 10*time.Second); err != nil {
 		logger.Error("Request failed", zap.Error(err))
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -130,7 +130,7 @@ func (n *Nats) Listen(ctx context.Context, opts ...*ListenerOptions) { // TODO: 
 
 	n.updateCache(&configs, updateFunc)
 
-	n.conn.Subscribe(fmt.Sprintf("refresh.%s.*", pluginName), func(m *nats.Msg) {
+	n.Conn.Subscribe(fmt.Sprintf("refresh.%s.*", pluginName), func(m *nats.Msg) {
 		_, span := tracer.Start(ctx, "Received a config")
 		err := json.Unmarshal(m.Data, &natsConfigs)
 		if err != nil {
@@ -150,7 +150,7 @@ func (n *Nats) Listen(ctx context.Context, opts ...*ListenerOptions) { // TODO: 
 		n.updateCache(&configs, updateFunc)
 	})
 
-	n.conn.Subscribe(fmt.Sprintf("unpublishConfiguration.%s.*", pluginName), func(m *nats.Msg) {
+	n.Conn.Subscribe(fmt.Sprintf("unpublishConfiguration.%s.*", pluginName), func(m *nats.Msg) {
 		ctx, span = tracer.Start(ctx, "Received unpublished event")
 		defer span.End()
 
@@ -197,7 +197,7 @@ func (n *Nats) removeFromCache(configs *[]NodeConfig, customFunc func(nc *NodeCo
 }
 
 func (n *Nats) Close() {
-	n.conn.Close()
+	n.Conn.Close()
 }
 
 type NodeConfigNats struct {
