@@ -463,20 +463,26 @@ var OrganizationService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	InvitationCodeService_GenerateCode_FullMethodName     = "/organization.InvitationCodeService/GenerateCode"
-	InvitationCodeService_ListCodes_FullMethodName        = "/organization.InvitationCodeService/ListCodes"
-	InvitationCodeService_RevokeCode_FullMethodName       = "/organization.InvitationCodeService/RevokeCode"
-	InvitationCodeService_RegisterWithCode_FullMethodName = "/organization.InvitationCodeService/RegisterWithCode"
+	InvitationCodeService_SendInvitation_FullMethodName          = "/organization.InvitationCodeService/SendInvitation"
+	InvitationCodeService_ResendInvitation_FullMethodName        = "/organization.InvitationCodeService/ResendInvitation"
+	InvitationCodeService_ListInvitations_FullMethodName         = "/organization.InvitationCodeService/ListInvitations"
+	InvitationCodeService_RevokeInvitation_FullMethodName        = "/organization.InvitationCodeService/RevokeInvitation"
+	InvitationCodeService_CheckInvitation_FullMethodName         = "/organization.InvitationCodeService/CheckInvitation"
+	InvitationCodeService_AcceptInvitation_FullMethodName        = "/organization.InvitationCodeService/AcceptInvitation"
+	InvitationCodeService_AcceptInvitationByEmail_FullMethodName = "/organization.InvitationCodeService/AcceptInvitationByEmail"
 )
 
 // InvitationCodeServiceClient is the client API for InvitationCodeService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InvitationCodeServiceClient interface {
-	GenerateCode(ctx context.Context, in *RequestInvByID, opts ...grpc.CallOption) (*InvitationCode, error)
-	ListCodes(ctx context.Context, in *RequestInvByID, opts ...grpc.CallOption) (*InvitationCodes, error)
-	RevokeCode(ctx context.Context, in *RequestByID, opts ...grpc.CallOption) (*Empty, error)
-	RegisterWithCode(ctx context.Context, in *RegisterWithCodeReq, opts ...grpc.CallOption) (*RegisterWithCodeRes, error)
+	SendInvitation(ctx context.Context, in *SendInvitationReq, opts ...grpc.CallOption) (*Empty, error)
+	ResendInvitation(ctx context.Context, in *RequestByID, opts ...grpc.CallOption) (*Empty, error)
+	ListInvitations(ctx context.Context, in *RequestInvByID, opts ...grpc.CallOption) (*ListInvitationsRes, error)
+	RevokeInvitation(ctx context.Context, in *RequestByID, opts ...grpc.CallOption) (*Empty, error)
+	CheckInvitation(ctx context.Context, in *CheckInvitationRequest, opts ...grpc.CallOption) (*CheckInvitationResponse, error)
+	AcceptInvitation(ctx context.Context, in *AcceptInvitationReq, opts ...grpc.CallOption) (*Empty, error)
+	AcceptInvitationByEmail(ctx context.Context, in *AcceptInvitationByEmailReq, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type invitationCodeServiceClient struct {
@@ -487,40 +493,70 @@ func NewInvitationCodeServiceClient(cc grpc.ClientConnInterface) InvitationCodeS
 	return &invitationCodeServiceClient{cc}
 }
 
-func (c *invitationCodeServiceClient) GenerateCode(ctx context.Context, in *RequestInvByID, opts ...grpc.CallOption) (*InvitationCode, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InvitationCode)
-	err := c.cc.Invoke(ctx, InvitationCodeService_GenerateCode_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationCodeServiceClient) ListCodes(ctx context.Context, in *RequestInvByID, opts ...grpc.CallOption) (*InvitationCodes, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InvitationCodes)
-	err := c.cc.Invoke(ctx, InvitationCodeService_ListCodes_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationCodeServiceClient) RevokeCode(ctx context.Context, in *RequestByID, opts ...grpc.CallOption) (*Empty, error) {
+func (c *invitationCodeServiceClient) SendInvitation(ctx context.Context, in *SendInvitationReq, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, InvitationCodeService_RevokeCode_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, InvitationCodeService_SendInvitation_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *invitationCodeServiceClient) RegisterWithCode(ctx context.Context, in *RegisterWithCodeReq, opts ...grpc.CallOption) (*RegisterWithCodeRes, error) {
+func (c *invitationCodeServiceClient) ResendInvitation(ctx context.Context, in *RequestByID, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegisterWithCodeRes)
-	err := c.cc.Invoke(ctx, InvitationCodeService_RegisterWithCode_FullMethodName, in, out, cOpts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, InvitationCodeService_ResendInvitation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *invitationCodeServiceClient) ListInvitations(ctx context.Context, in *RequestInvByID, opts ...grpc.CallOption) (*ListInvitationsRes, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListInvitationsRes)
+	err := c.cc.Invoke(ctx, InvitationCodeService_ListInvitations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *invitationCodeServiceClient) RevokeInvitation(ctx context.Context, in *RequestByID, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, InvitationCodeService_RevokeInvitation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *invitationCodeServiceClient) CheckInvitation(ctx context.Context, in *CheckInvitationRequest, opts ...grpc.CallOption) (*CheckInvitationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckInvitationResponse)
+	err := c.cc.Invoke(ctx, InvitationCodeService_CheckInvitation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *invitationCodeServiceClient) AcceptInvitation(ctx context.Context, in *AcceptInvitationReq, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, InvitationCodeService_AcceptInvitation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *invitationCodeServiceClient) AcceptInvitationByEmail(ctx context.Context, in *AcceptInvitationByEmailReq, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, InvitationCodeService_AcceptInvitationByEmail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -531,10 +567,13 @@ func (c *invitationCodeServiceClient) RegisterWithCode(ctx context.Context, in *
 // All implementations must embed UnimplementedInvitationCodeServiceServer
 // for forward compatibility.
 type InvitationCodeServiceServer interface {
-	GenerateCode(context.Context, *RequestInvByID) (*InvitationCode, error)
-	ListCodes(context.Context, *RequestInvByID) (*InvitationCodes, error)
-	RevokeCode(context.Context, *RequestByID) (*Empty, error)
-	RegisterWithCode(context.Context, *RegisterWithCodeReq) (*RegisterWithCodeRes, error)
+	SendInvitation(context.Context, *SendInvitationReq) (*Empty, error)
+	ResendInvitation(context.Context, *RequestByID) (*Empty, error)
+	ListInvitations(context.Context, *RequestInvByID) (*ListInvitationsRes, error)
+	RevokeInvitation(context.Context, *RequestByID) (*Empty, error)
+	CheckInvitation(context.Context, *CheckInvitationRequest) (*CheckInvitationResponse, error)
+	AcceptInvitation(context.Context, *AcceptInvitationReq) (*Empty, error)
+	AcceptInvitationByEmail(context.Context, *AcceptInvitationByEmailReq) (*Empty, error)
 	mustEmbedUnimplementedInvitationCodeServiceServer()
 }
 
@@ -545,17 +584,26 @@ type InvitationCodeServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedInvitationCodeServiceServer struct{}
 
-func (UnimplementedInvitationCodeServiceServer) GenerateCode(context.Context, *RequestInvByID) (*InvitationCode, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GenerateCode not implemented")
+func (UnimplementedInvitationCodeServiceServer) SendInvitation(context.Context, *SendInvitationReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendInvitation not implemented")
 }
-func (UnimplementedInvitationCodeServiceServer) ListCodes(context.Context, *RequestInvByID) (*InvitationCodes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListCodes not implemented")
+func (UnimplementedInvitationCodeServiceServer) ResendInvitation(context.Context, *RequestByID) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResendInvitation not implemented")
 }
-func (UnimplementedInvitationCodeServiceServer) RevokeCode(context.Context, *RequestByID) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RevokeCode not implemented")
+func (UnimplementedInvitationCodeServiceServer) ListInvitations(context.Context, *RequestInvByID) (*ListInvitationsRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListInvitations not implemented")
 }
-func (UnimplementedInvitationCodeServiceServer) RegisterWithCode(context.Context, *RegisterWithCodeReq) (*RegisterWithCodeRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RegisterWithCode not implemented")
+func (UnimplementedInvitationCodeServiceServer) RevokeInvitation(context.Context, *RequestByID) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RevokeInvitation not implemented")
+}
+func (UnimplementedInvitationCodeServiceServer) CheckInvitation(context.Context, *CheckInvitationRequest) (*CheckInvitationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckInvitation not implemented")
+}
+func (UnimplementedInvitationCodeServiceServer) AcceptInvitation(context.Context, *AcceptInvitationReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AcceptInvitation not implemented")
+}
+func (UnimplementedInvitationCodeServiceServer) AcceptInvitationByEmail(context.Context, *AcceptInvitationByEmailReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AcceptInvitationByEmail not implemented")
 }
 func (UnimplementedInvitationCodeServiceServer) mustEmbedUnimplementedInvitationCodeServiceServer() {}
 func (UnimplementedInvitationCodeServiceServer) testEmbeddedByValue()                               {}
@@ -578,74 +626,128 @@ func RegisterInvitationCodeServiceServer(s grpc.ServiceRegistrar, srv Invitation
 	s.RegisterService(&InvitationCodeService_ServiceDesc, srv)
 }
 
-func _InvitationCodeService_GenerateCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestInvByID)
+func _InvitationCodeService_SendInvitation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendInvitationReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(InvitationCodeServiceServer).GenerateCode(ctx, in)
+		return srv.(InvitationCodeServiceServer).SendInvitation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: InvitationCodeService_GenerateCode_FullMethodName,
+		FullMethod: InvitationCodeService_SendInvitation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationCodeServiceServer).GenerateCode(ctx, req.(*RequestInvByID))
+		return srv.(InvitationCodeServiceServer).SendInvitation(ctx, req.(*SendInvitationReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InvitationCodeService_ListCodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestInvByID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationCodeServiceServer).ListCodes(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationCodeService_ListCodes_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationCodeServiceServer).ListCodes(ctx, req.(*RequestInvByID))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationCodeService_RevokeCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _InvitationCodeService_ResendInvitation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestByID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(InvitationCodeServiceServer).RevokeCode(ctx, in)
+		return srv.(InvitationCodeServiceServer).ResendInvitation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: InvitationCodeService_RevokeCode_FullMethodName,
+		FullMethod: InvitationCodeService_ResendInvitation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationCodeServiceServer).RevokeCode(ctx, req.(*RequestByID))
+		return srv.(InvitationCodeServiceServer).ResendInvitation(ctx, req.(*RequestByID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InvitationCodeService_RegisterWithCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterWithCodeReq)
+func _InvitationCodeService_ListInvitations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestInvByID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(InvitationCodeServiceServer).RegisterWithCode(ctx, in)
+		return srv.(InvitationCodeServiceServer).ListInvitations(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: InvitationCodeService_RegisterWithCode_FullMethodName,
+		FullMethod: InvitationCodeService_ListInvitations_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationCodeServiceServer).RegisterWithCode(ctx, req.(*RegisterWithCodeReq))
+		return srv.(InvitationCodeServiceServer).ListInvitations(ctx, req.(*RequestInvByID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InvitationCodeService_RevokeInvitation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestByID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InvitationCodeServiceServer).RevokeInvitation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InvitationCodeService_RevokeInvitation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InvitationCodeServiceServer).RevokeInvitation(ctx, req.(*RequestByID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InvitationCodeService_CheckInvitation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckInvitationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InvitationCodeServiceServer).CheckInvitation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InvitationCodeService_CheckInvitation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InvitationCodeServiceServer).CheckInvitation(ctx, req.(*CheckInvitationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InvitationCodeService_AcceptInvitation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AcceptInvitationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InvitationCodeServiceServer).AcceptInvitation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InvitationCodeService_AcceptInvitation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InvitationCodeServiceServer).AcceptInvitation(ctx, req.(*AcceptInvitationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InvitationCodeService_AcceptInvitationByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AcceptInvitationByEmailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InvitationCodeServiceServer).AcceptInvitationByEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InvitationCodeService_AcceptInvitationByEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InvitationCodeServiceServer).AcceptInvitationByEmail(ctx, req.(*AcceptInvitationByEmailReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -658,20 +760,286 @@ var InvitationCodeService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*InvitationCodeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GenerateCode",
-			Handler:    _InvitationCodeService_GenerateCode_Handler,
+			MethodName: "SendInvitation",
+			Handler:    _InvitationCodeService_SendInvitation_Handler,
 		},
 		{
-			MethodName: "ListCodes",
-			Handler:    _InvitationCodeService_ListCodes_Handler,
+			MethodName: "ResendInvitation",
+			Handler:    _InvitationCodeService_ResendInvitation_Handler,
 		},
 		{
-			MethodName: "RevokeCode",
-			Handler:    _InvitationCodeService_RevokeCode_Handler,
+			MethodName: "ListInvitations",
+			Handler:    _InvitationCodeService_ListInvitations_Handler,
 		},
 		{
-			MethodName: "RegisterWithCode",
-			Handler:    _InvitationCodeService_RegisterWithCode_Handler,
+			MethodName: "RevokeInvitation",
+			Handler:    _InvitationCodeService_RevokeInvitation_Handler,
+		},
+		{
+			MethodName: "CheckInvitation",
+			Handler:    _InvitationCodeService_CheckInvitation_Handler,
+		},
+		{
+			MethodName: "AcceptInvitation",
+			Handler:    _InvitationCodeService_AcceptInvitation_Handler,
+		},
+		{
+			MethodName: "AcceptInvitationByEmail",
+			Handler:    _InvitationCodeService_AcceptInvitationByEmail_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "organization/organization.proto",
+}
+
+const (
+	SwitchOrgService_CreateSwitchOrg_FullMethodName        = "/organization.SwitchOrgService/CreateSwitchOrg"
+	SwitchOrgService_PatchSwitchOrg_FullMethodName         = "/organization.SwitchOrgService/PatchSwitchOrg"
+	SwitchOrgService_GetSwitchOrg_FullMethodName           = "/organization.SwitchOrgService/GetSwitchOrg"
+	SwitchOrgService_RemoveOrgFromSwitchOrg_FullMethodName = "/organization.SwitchOrgService/RemoveOrgFromSwitchOrg"
+	SwitchOrgService_RemoveSwitchOrg_FullMethodName        = "/organization.SwitchOrgService/RemoveSwitchOrg"
+)
+
+// SwitchOrgServiceClient is the client API for SwitchOrgService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type SwitchOrgServiceClient interface {
+	CreateSwitchOrg(ctx context.Context, in *SwitchOrgCreateReq, opts ...grpc.CallOption) (*Empty, error)
+	PatchSwitchOrg(ctx context.Context, in *SwitchOrg, opts ...grpc.CallOption) (*Empty, error)
+	GetSwitchOrg(ctx context.Context, in *RequestByUserId, opts ...grpc.CallOption) (*SwitchOrg, error)
+	RemoveOrgFromSwitchOrg(ctx context.Context, in *RequestByUserId, opts ...grpc.CallOption) (*Empty, error)
+	RemoveSwitchOrg(ctx context.Context, in *RequestByUserId, opts ...grpc.CallOption) (*Empty, error)
+}
+
+type switchOrgServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewSwitchOrgServiceClient(cc grpc.ClientConnInterface) SwitchOrgServiceClient {
+	return &switchOrgServiceClient{cc}
+}
+
+func (c *switchOrgServiceClient) CreateSwitchOrg(ctx context.Context, in *SwitchOrgCreateReq, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, SwitchOrgService_CreateSwitchOrg_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *switchOrgServiceClient) PatchSwitchOrg(ctx context.Context, in *SwitchOrg, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, SwitchOrgService_PatchSwitchOrg_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *switchOrgServiceClient) GetSwitchOrg(ctx context.Context, in *RequestByUserId, opts ...grpc.CallOption) (*SwitchOrg, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SwitchOrg)
+	err := c.cc.Invoke(ctx, SwitchOrgService_GetSwitchOrg_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *switchOrgServiceClient) RemoveOrgFromSwitchOrg(ctx context.Context, in *RequestByUserId, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, SwitchOrgService_RemoveOrgFromSwitchOrg_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *switchOrgServiceClient) RemoveSwitchOrg(ctx context.Context, in *RequestByUserId, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, SwitchOrgService_RemoveSwitchOrg_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// SwitchOrgServiceServer is the server API for SwitchOrgService service.
+// All implementations must embed UnimplementedSwitchOrgServiceServer
+// for forward compatibility.
+type SwitchOrgServiceServer interface {
+	CreateSwitchOrg(context.Context, *SwitchOrgCreateReq) (*Empty, error)
+	PatchSwitchOrg(context.Context, *SwitchOrg) (*Empty, error)
+	GetSwitchOrg(context.Context, *RequestByUserId) (*SwitchOrg, error)
+	RemoveOrgFromSwitchOrg(context.Context, *RequestByUserId) (*Empty, error)
+	RemoveSwitchOrg(context.Context, *RequestByUserId) (*Empty, error)
+	mustEmbedUnimplementedSwitchOrgServiceServer()
+}
+
+// UnimplementedSwitchOrgServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedSwitchOrgServiceServer struct{}
+
+func (UnimplementedSwitchOrgServiceServer) CreateSwitchOrg(context.Context, *SwitchOrgCreateReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSwitchOrg not implemented")
+}
+func (UnimplementedSwitchOrgServiceServer) PatchSwitchOrg(context.Context, *SwitchOrg) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchSwitchOrg not implemented")
+}
+func (UnimplementedSwitchOrgServiceServer) GetSwitchOrg(context.Context, *RequestByUserId) (*SwitchOrg, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSwitchOrg not implemented")
+}
+func (UnimplementedSwitchOrgServiceServer) RemoveOrgFromSwitchOrg(context.Context, *RequestByUserId) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveOrgFromSwitchOrg not implemented")
+}
+func (UnimplementedSwitchOrgServiceServer) RemoveSwitchOrg(context.Context, *RequestByUserId) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveSwitchOrg not implemented")
+}
+func (UnimplementedSwitchOrgServiceServer) mustEmbedUnimplementedSwitchOrgServiceServer() {}
+func (UnimplementedSwitchOrgServiceServer) testEmbeddedByValue()                          {}
+
+// UnsafeSwitchOrgServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to SwitchOrgServiceServer will
+// result in compilation errors.
+type UnsafeSwitchOrgServiceServer interface {
+	mustEmbedUnimplementedSwitchOrgServiceServer()
+}
+
+func RegisterSwitchOrgServiceServer(s grpc.ServiceRegistrar, srv SwitchOrgServiceServer) {
+	// If the following call pancis, it indicates UnimplementedSwitchOrgServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&SwitchOrgService_ServiceDesc, srv)
+}
+
+func _SwitchOrgService_CreateSwitchOrg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SwitchOrgCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwitchOrgServiceServer).CreateSwitchOrg(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwitchOrgService_CreateSwitchOrg_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwitchOrgServiceServer).CreateSwitchOrg(ctx, req.(*SwitchOrgCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SwitchOrgService_PatchSwitchOrg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SwitchOrg)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwitchOrgServiceServer).PatchSwitchOrg(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwitchOrgService_PatchSwitchOrg_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwitchOrgServiceServer).PatchSwitchOrg(ctx, req.(*SwitchOrg))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SwitchOrgService_GetSwitchOrg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestByUserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwitchOrgServiceServer).GetSwitchOrg(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwitchOrgService_GetSwitchOrg_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwitchOrgServiceServer).GetSwitchOrg(ctx, req.(*RequestByUserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SwitchOrgService_RemoveOrgFromSwitchOrg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestByUserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwitchOrgServiceServer).RemoveOrgFromSwitchOrg(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwitchOrgService_RemoveOrgFromSwitchOrg_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwitchOrgServiceServer).RemoveOrgFromSwitchOrg(ctx, req.(*RequestByUserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SwitchOrgService_RemoveSwitchOrg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestByUserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwitchOrgServiceServer).RemoveSwitchOrg(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwitchOrgService_RemoveSwitchOrg_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwitchOrgServiceServer).RemoveSwitchOrg(ctx, req.(*RequestByUserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// SwitchOrgService_ServiceDesc is the grpc.ServiceDesc for SwitchOrgService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var SwitchOrgService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "organization.SwitchOrgService",
+	HandlerType: (*SwitchOrgServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateSwitchOrg",
+			Handler:    _SwitchOrgService_CreateSwitchOrg_Handler,
+		},
+		{
+			MethodName: "PatchSwitchOrg",
+			Handler:    _SwitchOrgService_PatchSwitchOrg_Handler,
+		},
+		{
+			MethodName: "GetSwitchOrg",
+			Handler:    _SwitchOrgService_GetSwitchOrg_Handler,
+		},
+		{
+			MethodName: "RemoveOrgFromSwitchOrg",
+			Handler:    _SwitchOrgService_RemoveOrgFromSwitchOrg_Handler,
+		},
+		{
+			MethodName: "RemoveSwitchOrg",
+			Handler:    _SwitchOrgService_RemoveSwitchOrg_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
