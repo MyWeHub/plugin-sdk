@@ -29,6 +29,9 @@ const (
 	TerminologyService_UploadCodeSystem_FullMethodName                   = "/terminology.TerminologyService/UploadCodeSystem"
 	TerminologyService_GetAllConceptGroupsWithConceptMaps_FullMethodName = "/terminology.TerminologyService/GetAllConceptGroupsWithConceptMaps"
 	TerminologyService_GetConceptGroupWithMaps_FullMethodName            = "/terminology.TerminologyService/GetConceptGroupWithMaps"
+	TerminologyService_GetConceptMapById_FullMethodName                  = "/terminology.TerminologyService/GetConceptMapById"
+	TerminologyService_GetConceptMapByNameAndUri_FullMethodName          = "/terminology.TerminologyService/GetConceptMapByNameAndUri"
+	TerminologyService_GetConceptGroupByNameAndID_FullMethodName         = "/terminology.TerminologyService/GetConceptGroupByNameAndID"
 	TerminologyService_UpsertConceptGroup_FullMethodName                 = "/terminology.TerminologyService/UpsertConceptGroup"
 	TerminologyService_DeleteConceptGroup_FullMethodName                 = "/terminology.TerminologyService/DeleteConceptGroup"
 	TerminologyService_UpsertConceptMap_FullMethodName                   = "/terminology.TerminologyService/UpsertConceptMap"
@@ -40,6 +43,7 @@ const (
 	TerminologyService_DeleteCodeGroupFolder_FullMethodName              = "/terminology.TerminologyService/DeleteCodeGroupFolder"
 	TerminologyService_UpsertConceptGroupFolder_FullMethodName           = "/terminology.TerminologyService/UpsertConceptGroupFolder"
 	TerminologyService_GetConceptGroupFolder_FullMethodName              = "/terminology.TerminologyService/GetConceptGroupFolder"
+	TerminologyService_GetConceptGroupFolderByNameAndID_FullMethodName   = "/terminology.TerminologyService/GetConceptGroupFolderByNameAndID"
 	TerminologyService_GetAllConceptGroupFolders_FullMethodName          = "/terminology.TerminologyService/GetAllConceptGroupFolders"
 	TerminologyService_DeleteConceptGroupFolder_FullMethodName           = "/terminology.TerminologyService/DeleteConceptGroupFolder"
 )
@@ -57,6 +61,9 @@ type TerminologyServiceClient interface {
 	UploadCodeSystem(ctx context.Context, in *UploadCodeSystemReq, opts ...grpc.CallOption) (*CodeSystem, error)
 	GetAllConceptGroupsWithConceptMaps(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConceptGroupWithConceptMapsResponse, error)
 	GetConceptGroupWithMaps(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*GetConceptGroupWithMapsResp, error)
+	GetConceptMapById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*ConceptMap, error)
+	GetConceptMapByNameAndUri(ctx context.Context, in *GetConceptMapByNameAndUriReq, opts ...grpc.CallOption) (*ConceptMap, error)
+	GetConceptGroupByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*ConceptGroup, error)
 	UpsertConceptGroup(ctx context.Context, in *UpsertConceptGroupRequest, opts ...grpc.CallOption) (*ConceptGroup, error)
 	DeleteConceptGroup(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpsertConceptMap(ctx context.Context, in *UpsertConceptMapReq, opts ...grpc.CallOption) (*ConceptMap, error)
@@ -68,6 +75,7 @@ type TerminologyServiceClient interface {
 	DeleteCodeGroupFolder(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpsertConceptGroupFolder(ctx context.Context, in *UpsertConceptGroupFolderReq, opts ...grpc.CallOption) (*ConceptGroupFolder, error)
 	GetConceptGroupFolder(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*GetConceptGroupFolderResp, error)
+	GetConceptGroupFolderByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*ConceptGroupFolder, error)
 	GetAllConceptGroupFolders(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConceptGroupFoldersListView, error)
 	DeleteConceptGroupFolder(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -164,6 +172,36 @@ func (c *terminologyServiceClient) GetConceptGroupWithMaps(ctx context.Context, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetConceptGroupWithMapsResp)
 	err := c.cc.Invoke(ctx, TerminologyService_GetConceptGroupWithMaps_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *terminologyServiceClient) GetConceptMapById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*ConceptMap, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConceptMap)
+	err := c.cc.Invoke(ctx, TerminologyService_GetConceptMapById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *terminologyServiceClient) GetConceptMapByNameAndUri(ctx context.Context, in *GetConceptMapByNameAndUriReq, opts ...grpc.CallOption) (*ConceptMap, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConceptMap)
+	err := c.cc.Invoke(ctx, TerminologyService_GetConceptMapByNameAndUri_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *terminologyServiceClient) GetConceptGroupByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*ConceptGroup, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConceptGroup)
+	err := c.cc.Invoke(ctx, TerminologyService_GetConceptGroupByNameAndID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -280,6 +318,16 @@ func (c *terminologyServiceClient) GetConceptGroupFolder(ctx context.Context, in
 	return out, nil
 }
 
+func (c *terminologyServiceClient) GetConceptGroupFolderByNameAndID(ctx context.Context, in *NameAndIdRequest, opts ...grpc.CallOption) (*ConceptGroupFolder, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConceptGroupFolder)
+	err := c.cc.Invoke(ctx, TerminologyService_GetConceptGroupFolderByNameAndID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *terminologyServiceClient) GetAllConceptGroupFolders(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConceptGroupFoldersListView, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ConceptGroupFoldersListView)
@@ -313,6 +361,9 @@ type TerminologyServiceServer interface {
 	UploadCodeSystem(context.Context, *UploadCodeSystemReq) (*CodeSystem, error)
 	GetAllConceptGroupsWithConceptMaps(context.Context, *emptypb.Empty) (*ConceptGroupWithConceptMapsResponse, error)
 	GetConceptGroupWithMaps(context.Context, *IdRequest) (*GetConceptGroupWithMapsResp, error)
+	GetConceptMapById(context.Context, *IdRequest) (*ConceptMap, error)
+	GetConceptMapByNameAndUri(context.Context, *GetConceptMapByNameAndUriReq) (*ConceptMap, error)
+	GetConceptGroupByNameAndID(context.Context, *NameAndIdRequest) (*ConceptGroup, error)
 	UpsertConceptGroup(context.Context, *UpsertConceptGroupRequest) (*ConceptGroup, error)
 	DeleteConceptGroup(context.Context, *IdRequest) (*emptypb.Empty, error)
 	UpsertConceptMap(context.Context, *UpsertConceptMapReq) (*ConceptMap, error)
@@ -324,6 +375,7 @@ type TerminologyServiceServer interface {
 	DeleteCodeGroupFolder(context.Context, *IdRequest) (*emptypb.Empty, error)
 	UpsertConceptGroupFolder(context.Context, *UpsertConceptGroupFolderReq) (*ConceptGroupFolder, error)
 	GetConceptGroupFolder(context.Context, *IdRequest) (*GetConceptGroupFolderResp, error)
+	GetConceptGroupFolderByNameAndID(context.Context, *NameAndIdRequest) (*ConceptGroupFolder, error)
 	GetAllConceptGroupFolders(context.Context, *emptypb.Empty) (*ConceptGroupFoldersListView, error)
 	DeleteConceptGroupFolder(context.Context, *IdRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedTerminologyServiceServer()
@@ -363,6 +415,15 @@ func (UnimplementedTerminologyServiceServer) GetAllConceptGroupsWithConceptMaps(
 func (UnimplementedTerminologyServiceServer) GetConceptGroupWithMaps(context.Context, *IdRequest) (*GetConceptGroupWithMapsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConceptGroupWithMaps not implemented")
 }
+func (UnimplementedTerminologyServiceServer) GetConceptMapById(context.Context, *IdRequest) (*ConceptMap, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConceptMapById not implemented")
+}
+func (UnimplementedTerminologyServiceServer) GetConceptMapByNameAndUri(context.Context, *GetConceptMapByNameAndUriReq) (*ConceptMap, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConceptMapByNameAndUri not implemented")
+}
+func (UnimplementedTerminologyServiceServer) GetConceptGroupByNameAndID(context.Context, *NameAndIdRequest) (*ConceptGroup, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConceptGroupByNameAndID not implemented")
+}
 func (UnimplementedTerminologyServiceServer) UpsertConceptGroup(context.Context, *UpsertConceptGroupRequest) (*ConceptGroup, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertConceptGroup not implemented")
 }
@@ -395,6 +456,9 @@ func (UnimplementedTerminologyServiceServer) UpsertConceptGroupFolder(context.Co
 }
 func (UnimplementedTerminologyServiceServer) GetConceptGroupFolder(context.Context, *IdRequest) (*GetConceptGroupFolderResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConceptGroupFolder not implemented")
+}
+func (UnimplementedTerminologyServiceServer) GetConceptGroupFolderByNameAndID(context.Context, *NameAndIdRequest) (*ConceptGroupFolder, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConceptGroupFolderByNameAndID not implemented")
 }
 func (UnimplementedTerminologyServiceServer) GetAllConceptGroupFolders(context.Context, *emptypb.Empty) (*ConceptGroupFoldersListView, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllConceptGroupFolders not implemented")
@@ -581,6 +645,60 @@ func _TerminologyService_GetConceptGroupWithMaps_Handler(srv interface{}, ctx co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TerminologyServiceServer).GetConceptGroupWithMaps(ctx, req.(*IdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TerminologyService_GetConceptMapById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TerminologyServiceServer).GetConceptMapById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TerminologyService_GetConceptMapById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TerminologyServiceServer).GetConceptMapById(ctx, req.(*IdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TerminologyService_GetConceptMapByNameAndUri_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConceptMapByNameAndUriReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TerminologyServiceServer).GetConceptMapByNameAndUri(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TerminologyService_GetConceptMapByNameAndUri_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TerminologyServiceServer).GetConceptMapByNameAndUri(ctx, req.(*GetConceptMapByNameAndUriReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TerminologyService_GetConceptGroupByNameAndID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NameAndIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TerminologyServiceServer).GetConceptGroupByNameAndID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TerminologyService_GetConceptGroupByNameAndID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TerminologyServiceServer).GetConceptGroupByNameAndID(ctx, req.(*NameAndIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -783,6 +901,24 @@ func _TerminologyService_GetConceptGroupFolder_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TerminologyService_GetConceptGroupFolderByNameAndID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NameAndIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TerminologyServiceServer).GetConceptGroupFolderByNameAndID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TerminologyService_GetConceptGroupFolderByNameAndID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TerminologyServiceServer).GetConceptGroupFolderByNameAndID(ctx, req.(*NameAndIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TerminologyService_GetAllConceptGroupFolders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -863,6 +999,18 @@ var TerminologyService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TerminologyService_GetConceptGroupWithMaps_Handler,
 		},
 		{
+			MethodName: "GetConceptMapById",
+			Handler:    _TerminologyService_GetConceptMapById_Handler,
+		},
+		{
+			MethodName: "GetConceptMapByNameAndUri",
+			Handler:    _TerminologyService_GetConceptMapByNameAndUri_Handler,
+		},
+		{
+			MethodName: "GetConceptGroupByNameAndID",
+			Handler:    _TerminologyService_GetConceptGroupByNameAndID_Handler,
+		},
+		{
 			MethodName: "UpsertConceptGroup",
 			Handler:    _TerminologyService_UpsertConceptGroup_Handler,
 		},
@@ -905,6 +1053,10 @@ var TerminologyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConceptGroupFolder",
 			Handler:    _TerminologyService_GetConceptGroupFolder_Handler,
+		},
+		{
+			MethodName: "GetConceptGroupFolderByNameAndID",
+			Handler:    _TerminologyService_GetConceptGroupFolderByNameAndID_Handler,
 		},
 		{
 			MethodName: "GetAllConceptGroupFolders",
