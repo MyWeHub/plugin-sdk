@@ -165,10 +165,6 @@ func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 		unary = append(unary, grpcTags.UnaryServerInterceptor())
 		stream = append(stream, grpcTags.StreamServerInterceptor())
 	}
-	if x.OtelInterceptor {
-		unary = append(unary, grpcOtel.UnaryServerInterceptor())
-		stream = append(stream, grpcOtel.StreamServerInterceptor())
-	}
 	if x.PrometheusInterceptor {
 		unary = append(unary, grpcPrometheus.UnaryServerInterceptor)
 		stream = append(stream, grpcPrometheus.StreamServerInterceptor)
@@ -197,6 +193,9 @@ func (s *server) SetNewGRPC(opts ...*GRPCOptions) *server {
 	serverOpts := make([]grpc.ServerOption, 0)
 	serverOpts = append(serverOpts, grpc.StreamInterceptor(grpcMiddleware.ChainStreamServer(stream...)))
 	serverOpts = append(serverOpts, grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(unary...)))
+	if x.OtelInterceptor {
+		serverOpts = append(serverOpts, grpc.StatsHandler(grpcOtel.NewServerHandler()))
+	}
 
 	if x.MaxSendSize > 0 {
 		serverOpts = append(serverOpts, grpc.MaxSendMsgSize(x.MaxSendSize))
@@ -219,26 +218,37 @@ func (s *server) setDefaultGRPC() *server {
 		grpcRecovery.WithRecoveryHandler(s.recoveryFunc),
 	}
 
-	streamInterceptor := grpc.StreamInterceptor(
-		grpcMiddleware.ChainStreamServer(
-			grpcTags.StreamServerInterceptor(),
-			grpcOtel.StreamServerInterceptor(),
-			grpcPrometheus.StreamServerInterceptor,
-			grpcZap.StreamServerInterceptor(logger),
-			grpcAuth.StreamServerInterceptor(s.jwtAuthFunc),
-			grpcRecovery.StreamServerInterceptor(),
-			grpcRecovery.StreamServerInterceptor(recoveryOpts...)))
-	unaryInterceptor := grpc.UnaryInterceptor(
-		grpcMiddleware.ChainUnaryServer(
-			grpcTags.UnaryServerInterceptor(),
-			grpcOtel.UnaryServerInterceptor(),
-			grpcPrometheus.UnaryServerInterceptor,
-			grpcZap.UnaryServerInterceptor(logger),
-			grpcAuth.UnaryServerInterceptor(s.jwtAuthFunc),
-			grpcRecovery.UnaryServerInterceptor(),
-			grpcRecovery.UnaryServerInterceptor(recoveryOpts...)))
+	// Create interceptor chains without the deprecated OpenTelemetry interceptors
+	streamInterceptors := []grpc.StreamServerInterceptor{
+		grpcTags.StreamServerInterceptor(),
+		grpcPrometheus.StreamServerInterceptor,
+		grpcZap.StreamServerInterceptor(logger),
+		grpcAuth.StreamServerInterceptor(s.jwtAuthFunc),
+		grpcRecovery.StreamServerInterceptor(),
+		grpcRecovery.StreamServerInterceptor(recoveryOpts...),
+	}
 
-	s.GrpcServer = grpc.NewServer(streamInterceptor, unaryInterceptor)
+	unaryInterceptors := []grpc.UnaryServerInterceptor{
+		grpcTags.UnaryServerInterceptor(),
+		grpcPrometheus.UnaryServerInterceptor,
+		grpcZap.UnaryServerInterceptor(logger),
+		grpcAuth.UnaryServerInterceptor(s.jwtAuthFunc),
+		grpcRecovery.UnaryServerInterceptor(),
+		grpcRecovery.UnaryServerInterceptor(recoveryOpts...),
+	}
+
+	// Create server options
+	serverOpts := []grpc.ServerOption{
+		grpc.StreamInterceptor(grpcMiddleware.ChainStreamServer(streamInterceptors...)),
+		grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(unaryInterceptors...)),
+	}
+
+	// Add the OpenTelemetry stats handler
+	otelHandler := grpcOtel.NewServerHandler()
+	serverOpts = append(serverOpts, grpc.StatsHandler(otelHandler))
+
+	s.GrpcServer = grpc.NewServer(serverOpts...)
+
 	return s
 }
 
