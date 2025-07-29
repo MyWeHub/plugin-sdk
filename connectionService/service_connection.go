@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -50,7 +51,8 @@ func New(ctx context.Context, opts ...*Options) (IConnectionService, error) {
 		}
 	}
 
-	conn, err := grpc.DialContext(ctx, url, grpc.WithInsecure(), grpc.WithUnaryInterceptor(grpcOtel.UnaryClientInterceptor()))
+	conn, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithStatsHandler(grpcOtel.NewClientHandler()))
+	//conn, err := grpc.DialContext(ctx, url, grpc.WithInsecure(), grpc.WithUnaryInterceptor(grpcOtel.UnaryClientInterceptor()))
 	if err != nil {
 		logger.Error("Dial service-connection", zap.Error(err), zap.String("url", url))
 		return nil, err
