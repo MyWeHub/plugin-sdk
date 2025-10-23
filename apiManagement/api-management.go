@@ -3,11 +3,12 @@ package apimanagement
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/apimanagement/armapimanagement/v2"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
-	"os"
 )
 
 var (
@@ -24,6 +25,7 @@ type Adapter struct {
 	cf          *armapimanagement.ClientFactory
 	serviceName string
 	rgN         string
+	pluginHTTP  string
 }
 
 func New() (*Adapter, error) {
@@ -42,6 +44,10 @@ func New() (*Adapter, error) {
 	if rgN == "" {
 		return nil, fmt.Errorf("env 'RESOURCE_GROUP_NAME' not found")
 	}
+	pluginHTTP := os.Getenv("PLUGIN_HTTP_SERVICE_URL")
+	if pluginHTTP == "" {
+		return nil, fmt.Errorf("env 'PLUGIN_HTTP_SERVICE_URL' not found")
+	}
 
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
@@ -57,6 +63,7 @@ func New() (*Adapter, error) {
 		cf:          clientFactory,
 		serviceName: serviceName,
 		rgN:         rgN,
+		pluginHTTP:  pluginHTTP,
 	}, nil
 }
 
@@ -142,7 +149,7 @@ func (a *Adapter) CreateApiGroup(ctx context.Context, orgID string) (*armapimana
 			DisplayName: strToPtr(name),
 			Protocols: []*armapimanagement.Protocol{
 				&[]armapimanagement.Protocol{armapimanagement.ProtocolHTTPS}[0]},
-			ServiceURL:           strToPtr("https://dashboard-uat.weconnecthub.net/module/plugin-http-operations/api/v2/trigger/"),
+			ServiceURL:           strToPtr(a.pluginHTTP),
 			SubscriptionRequired: &[]bool{true}[0],
 		},
 	}, &armapimanagement.APIClientBeginCreateOrUpdateOptions{IfMatch: nil})
